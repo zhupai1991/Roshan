@@ -1,6 +1,11 @@
 #include "RoshanApp.h"
 #include "Moose.h"
 #include "AppFactory.h"
+#include "ActionFactory.h"
+#include "Syntax.h"
+
+#include "HeatConductionTimeDerivative.h"
+#include "HeatConductionKernel.h"
 
 template<>
 InputParameters validParams<RoshanApp>()
@@ -37,6 +42,8 @@ RoshanApp::registerApps()
 void
 RoshanApp::registerObjects(Factory & factory)
 {
+	registerKernel(HeatConductionTimeDerivative);
+	registerKernel(HeatConductionKernel);
 }
 
 void
