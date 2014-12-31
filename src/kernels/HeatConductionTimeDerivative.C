@@ -1,0 +1,31 @@
+#include "HeatConductionTimeDerivative.h"
+
+template<>
+InputParameters validParams<HeatConductionTimeDerivative>()
+{
+  InputParameters params = validParams<TimeDerivative>();
+  return params;
+}
+
+
+HeatConductionTimeDerivative::HeatConductionTimeDerivative(const std::string & name, InputParameters parameters)
+  :TimeDerivative(name, parameters)
+//   _specific_heat(getMaterialProperty<Real>("specific_heat")),
+//   _density(getMaterialProperty<Real>("density"))
+{}
+
+Real
+HeatConductionTimeDerivative::computeQpResidual()
+{
+//  return _specific_heat[_qp]*_density[_qp]*TimeDerivative::computeQpResidual();
+  return TimeDerivative::computeQpResidual();
+
+}
+
+Real
+HeatConductionTimeDerivative::computeQpJacobian()
+{
+//  return _specific_heat[_qp]*_density[_qp]*TimeDerivative::computeQpJacobian();
+  return TimeDerivative::computeQpJacobian();
+
+}

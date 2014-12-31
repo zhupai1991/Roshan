@@ -1,7 +1,6 @@
 #include "RoshanApp.h"
 #include "Moose.h"
 #include "AppFactory.h"
-#include "ModulesApp.h"
 
 template<>
 InputParameters validParams<RoshanApp>()
@@ -19,11 +18,9 @@ RoshanApp::RoshanApp(const std::string & name, InputParameters parameters) :
   srand(processor_id());
 
   Moose::registerObjects(_factory);
-  ModulesApp::registerObjects(_factory);
   RoshanApp::registerObjects(_factory);
 
   Moose::associateSyntax(_syntax, _action_factory);
-  ModulesApp::associateSyntax(_syntax, _action_factory);
   RoshanApp::associateSyntax(_syntax, _action_factory);
 }
 
