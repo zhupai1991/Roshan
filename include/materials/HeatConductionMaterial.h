@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Material.h"
+#include "LinearInterpolation.h"
 
 class Function;
 
@@ -13,19 +14,13 @@ public:
 protected:
   virtual void computeProperties();
 
-  const bool _has_temp;
+private:
   VariableValue & _temperature;
-
-  const Real _my_thermal_conductivity;
-  const Real _my_specific_heat;
-
-  MaterialProperty<Real> & _thermal_conductivity;
-  MaterialProperty<Real> & _thermal_conductivity_dT;
-  Function * const _thermal_conductivity_temperature_function;
-
-  MaterialProperty<Real> & _specific_heat;
-  Function * const _specific_heat_temperature_function;
-
+  MaterialProperty<Real> & _k;
+  MaterialProperty<Real> & _k_dT;
+  MaterialProperty<Real> & _cp;
+  MaterialProperty<Real> & _cp_dT;
+  LinearInterpolation _piecewise_func;
 };
 
 template<>
