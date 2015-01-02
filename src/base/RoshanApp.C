@@ -7,6 +7,8 @@
 #include "HeatConductionTimeDerivative.h"
 #include "HeatConductionKernel.h"
 
+#include "HeatConductionMaterial.h"
+
 template<>
 InputParameters validParams<RoshanApp>()
 {
@@ -44,6 +46,8 @@ RoshanApp::registerObjects(Factory & factory)
 {
 	registerKernel(HeatConductionTimeDerivative);
 	registerKernel(HeatConductionKernel);
+
+	registerMaterial(HeatConductionMaterial);
 }
 
 void

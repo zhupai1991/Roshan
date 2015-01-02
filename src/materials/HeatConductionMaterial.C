@@ -6,8 +6,8 @@ InputParameters validParams<HeatConductionMaterial>()
   InputParameters params = validParams<Material>();
 
   params.addRequiredCoupledVar("temperature", "Coupled Temperature");
-  params.addParam<std::vector<Real> >("t_list", "The vector of indepedent values for building the piecewise function");
-  params.addParam<std::vector<Real> >("k_list", "The vector of indepedent values for building the piecewise function");
+//  params.addParam<std::vector<Real> >("t_list", "The vector of indepedent values for building the piecewise function");
+//  params.addParam<std::vector<Real> >("k_list", "The vector of indepedent values for building the piecewise function");
   return params;
 }
 
@@ -16,9 +16,9 @@ HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputPa
     _temperature(coupledValue("temperature")),
     _k(declareProperty<Real>("thermal_conductivity")),
     _k_dT(declareProperty<Real>("thermal_conductivity_dT")),
-
     _cp(declareProperty<Real>("specific_heat")),
     _cp_dT( declareProperty<Real>("specific_heat_dT"))
+//	_piecewise_func(getParam<std::vector<Real> >("independent_vals"), getParam<std::vector<Real> >("independent_vals"))
 {
 //  if (_thermal_conductivity_temperature_function && !_has_temp)
 //  {
@@ -36,11 +36,9 @@ HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputPa
 //  {
 //    mooseError("Cannot define both specific heat and specific heat temperature function");
 //  }
-//	if(isParamValid("t_list"))
+	_console << "111" <<std::endl;
+	if(isParamValid("t_list"))
 	{
-		std::vector<Real> x = getParam<std::vector<Real> >("independent_vals");
-		std::vector<Real> y = getParam<std::vector<Real> >("dependent_vals");
-	    _piecewise_func(x, y);
 	}
 }
 
@@ -52,5 +50,6 @@ void HeatConductionMaterial::computeProperties()
     _k_dT[_qp] = 0;
     _cp[_qp] = 1;
     _cp_dT[_qp] = 0;
+    _console << _k[_qp] <<std::endl;
   }
 }

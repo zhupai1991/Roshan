@@ -11,13 +11,11 @@ public:
 
 protected:
   virtual Real computeQpResidual();
-
   virtual Real computeQpJacobian();
 
 private:
-//  MaterialProperty<Real> & _thermal_conductivity;
-//  MaterialProperty<Real> * const _diffusion_coefficient_dT;
-
+  MaterialProperty<Real> & _k;
+  MaterialProperty<Real> & _k_dT;
 };
 
 template<>

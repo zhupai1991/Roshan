@@ -34,7 +34,7 @@
     type = DirichletBC
     variable = temp
     boundary = left
-    value = 1
+    value = 0
   [../]
   [./right]
     type = DirichletBC
@@ -56,10 +56,18 @@
   [../]
 []
 
+[Materials]
+  [./material]
+    type = HeatConductionMaterial
+    temperature = temp
+    block = 0
+  [../]
+[]
+
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 20000000000
+  dt = 0.1
   num_steps = 1000
 
   l_tol = 1e-08
@@ -76,7 +84,7 @@
   [./console]
     type = Console
     perf_log = true
-    output_on = 'timestep_end failed nonlinear linear'
+    outputs_on = 'timestep_end failed nonlinear linear'
   [../]
 []
 
