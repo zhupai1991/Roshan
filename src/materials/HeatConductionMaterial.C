@@ -6,8 +6,9 @@ InputParameters validParams<HeatConductionMaterial>()
   InputParameters params = validParams<Material>();
 
   params.addRequiredCoupledVar("temperature", "Coupled Temperature");
-//  params.addParam<std::vector<Real> >("t_list", "The vector of indepedent values for building the piecewise function");
-//  params.addParam<std::vector<Real> >("k_list", "The vector of indepedent values for building the piecewise function");
+  params.addParam<std::vector<Real> >("t_list", "The vector of temperature values for building the piecewise function");
+  params.addParam<std::vector<Real> >("k_list", "The vector of thermal conductivity values for building the piecewise function");
+  params.addParam<std::vector<Real> >("cp_list", "The vector of specific heat values for building the piecewise function");
   return params;
 }
 
@@ -17,8 +18,9 @@ HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputPa
     _k(declareProperty<Real>("thermal_conductivity")),
     _k_dT(declareProperty<Real>("thermal_conductivity_dT")),
     _cp(declareProperty<Real>("specific_heat")),
-    _cp_dT( declareProperty<Real>("specific_heat_dT"))
-//	_piecewise_func(getParam<std::vector<Real> >("independent_vals"), getParam<std::vector<Real> >("independent_vals"))
+    _cp_dT( declareProperty<Real>("specific_heat_dT")),
+	_func_k_T(getParam<std::vector<Real> >("t_list"), getParam<std::vector<Real> >("k_list")),
+	_func_cp_T(getParam<std::vector<Real> >("t_list"), getParam<std::vector<Real> >("cp_list"))
 {
 //  if (_thermal_conductivity_temperature_function && !_has_temp)
 //  {
@@ -36,7 +38,6 @@ HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputPa
 //  {
 //    mooseError("Cannot define both specific heat and specific heat temperature function");
 //  }
-	_console << "111" <<std::endl;
 	if(isParamValid("t_list"))
 	{
 	}
@@ -44,12 +45,12 @@ HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputPa
 
 void HeatConductionMaterial::computeProperties()
 {
+  Real epsi = 1E-08;
   for (unsigned int qp(0); qp < _qrule->n_points(); ++qp)
   {
-    _k[_qp] = 1.;
-    _k_dT[_qp] = 0;
-    _cp[_qp] = 1;
-    _cp_dT[_qp] = 0;
-    _console << _k[_qp] <<std::endl;
+    _k[qp] = _func_k_T.sample(_temperature[qp]);
+    _k_dT[qp] = (_func_k_T.sample(_temperature[qp]+epsi) - _func_k_T.sample(_temperature[qp]-epsi))/2/epsi ;
+    _cp[qp] = _func_cp_T.sample(_temperature[qp]);
+    _cp_dT[qp] = (_func_cp_T.sample(_temperature[qp]+epsi) - _func_cp_T.sample(_temperature[qp]-epsi))/2/epsi ;
   }
 }

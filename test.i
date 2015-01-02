@@ -14,7 +14,7 @@
   [./temp_ic]
     variable = temp
     type = ConstantIC
-    value = 100
+    value = 0
   [../]
 []
 
@@ -61,6 +61,9 @@
     type = HeatConductionMaterial
     temperature = temp
     block = 0
+    t_list = '0  1'
+    k_list = '1 100'
+    cp_list = '1 2'
   [../]
 []
 
@@ -68,10 +71,10 @@
   type = Transient
   solve_type = newton
   dt = 0.1
-  num_steps = 1000
+  num_steps = 10
 
-  l_tol = 1e-08
-  nl_rel_tol = 1e-09
+  l_tol = 1e-04
+  nl_rel_tol = 1e-05
   l_max_its = 10
   nl_max_its = 10
   petsc_options_iname = '-pc_type -pc_hypre_type'
@@ -84,7 +87,7 @@
   [./console]
     type = Console
     perf_log = true
-    outputs_on = 'timestep_end failed nonlinear linear'
+    output_on = 'timestep_end failed nonlinear linear'
   [../]
 []
 
