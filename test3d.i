@@ -1,8 +1,5 @@
 [Mesh]
-  type = GeneratedMesh
-  dim = 2
-  nx = 10
-  ny = 10
+  file = cube-hole.e
 []
 
 [Variables]
@@ -13,8 +10,7 @@
 [ICs]
   [./temp_ic]
     variable = temp
-    type = ConstantIC
-    value = 0
+    type = TestIC
   [../]
 []
 
@@ -46,7 +42,7 @@
     type = NeumannBC
     variable = temp
     boundary = top
-    value = 0
+    value = -1
   [../]
  [./bottom]
     type = NeumannBC
@@ -60,18 +56,18 @@
   [./material]
     type = HeatConductionMaterial
     temperature = temp
-    block = 0
-    t_list = '0  1'
-    k_list = '1 100'
-    cp_list = '1 2'
+    block = 1
+    t_list =  '1 2'
+    k_list =  '1 1'
+    cp_list = '1 1'
   [../]
 []
 
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 0.1
-  num_steps = 10
+  dt = 1E-01
+  num_steps = 10000
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05

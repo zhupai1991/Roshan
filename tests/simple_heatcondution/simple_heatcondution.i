@@ -34,7 +34,7 @@
     type = DirichletBC
     variable = temp
     boundary = left
-    value = 1
+    value = 0
   [../]
   [./right]
     type = DirichletBC
@@ -56,14 +56,25 @@
   [../]
 []
 
+[Materials]
+  [./material]
+    type = HeatConductionMaterial
+    temperature = temp
+    block = 0
+    t_list = '0 0.5 1'
+    k_list = '1 50 100'
+    cp_list = '1 1 1'
+  [../]
+[]
+
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 1
+  dt = 0.1
   num_steps = 1
 
-  l_tol = 1e-08
-  nl_rel_tol = 1e-09
+  l_tol = 1e-04
+  nl_rel_tol = 1e-05
   l_max_its = 10
   nl_max_its = 10
   petsc_options_iname = '-pc_type -pc_hypre_type'

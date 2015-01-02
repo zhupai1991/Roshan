@@ -20,7 +20,8 @@ private:
   MaterialProperty<Real> & _k_dT;
   MaterialProperty<Real> & _cp;
   MaterialProperty<Real> & _cp_dT;
-  LinearInterpolation _piecewise_func;
+  LinearInterpolation _func_k_T;
+  LinearInterpolation _func_cp_T;
 };
 
 template<>
