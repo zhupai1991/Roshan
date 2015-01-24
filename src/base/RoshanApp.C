@@ -4,6 +4,8 @@
 #include "ActionFactory.h"
 #include "Syntax.h"
 
+#include "TestIC.h"
+
 #include "HeatConductionTimeDerivative.h"
 #include "HeatConductionKernel.h"
 
@@ -44,6 +46,8 @@ RoshanApp::registerApps()
 void
 RoshanApp::registerObjects(Factory & factory)
 {
+	registerInitialCondition(TestIC);
+
 	registerKernel(HeatConductionTimeDerivative);
 	registerKernel(HeatConductionKernel);
 

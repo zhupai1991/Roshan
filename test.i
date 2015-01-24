@@ -1,8 +1,8 @@
 [Mesh]
   type = GeneratedMesh
   dim = 2
-  nx = 10
-  ny = 10
+  nx = 100
+  ny = 100
 []
 
 [Variables]
@@ -61,17 +61,17 @@
     type = HeatConductionMaterial
     temperature = temp
     block = 0
-    t_list = '0  1'
-    k_list = '1 100'
-    cp_list = '1 2'
+    t_list = '0 0.5 1'
+    k_list = '1 0.5 1'
+    cp_list = '1 0.5 1'
   [../]
 []
 
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 0.1
-  num_steps = 10
+  dt = 1E+10
+  num_steps = 10000
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05
