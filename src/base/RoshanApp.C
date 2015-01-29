@@ -11,6 +11,8 @@
 
 #include "HeatConductionMaterial.h"
 
+#include "MMTFunction.h"
+
 template<>
 InputParameters validParams<RoshanApp>()
 {
@@ -52,6 +54,8 @@ RoshanApp::registerObjects(Factory & factory)
 	registerKernel(HeatConductionKernel);
 
 	registerMaterial(HeatConductionMaterial);
+
+	registerFunction(MMTFunction);
 }
 
 void
