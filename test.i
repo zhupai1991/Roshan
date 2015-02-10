@@ -14,7 +14,7 @@
   [./temp_ic]
     variable = temp
     type = ConstantIC
-    value = 0
+    value = 300
   [../]
 []
 
@@ -34,13 +34,13 @@
     type = DirichletBC
     variable = temp
     boundary = left
-    value = 0
+    value = 300
   [../]
   [./right]
     type = DirichletBC
     variable = temp
     boundary = right
-    value = 1
+    value = 2000
   [../]
   [./top]
     type = NeumannBC
@@ -70,7 +70,7 @@
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 1E+10
+  dt = 1E-03
   num_steps = 10000
 
   l_tol = 1e-04

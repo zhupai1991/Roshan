@@ -11,7 +11,12 @@
 
 #include "HeatConductionMaterial.h"
 
-#include "MMTFunction.h"
+
+//DG Kernel
+#include "HeatFaceKernel.h"
+
+//DG BC
+#include "DGDirichletBC.h"
 
 template<>
 InputParameters validParams<RoshanApp>()
@@ -55,7 +60,9 @@ RoshanApp::registerObjects(Factory & factory)
 
 	registerMaterial(HeatConductionMaterial);
 
-	registerFunction(MMTFunction);
+	registerDGKernel(HeatFaceKernel);
+
+	registerBoundaryCondition(DGDirichletBC);
 }
 
 void
