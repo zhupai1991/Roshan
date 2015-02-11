@@ -15,10 +15,11 @@
 
 //DG Kernel
 #include "HeatFaceKernel.h"
-#include "HeatTransferBC.h"
 
 //DG BC
 #include "DGDirichletBC.h"
+#include "HeatTransferBC.h"
+#include "HeatRadiationBC.h"
 
 template<>
 InputParameters validParams<RoshanApp>()
@@ -66,6 +67,7 @@ RoshanApp::registerObjects(Factory & factory)
 
 	registerBoundaryCondition(DGDirichletBC);
 	registerBoundaryCondition(HeatTransferBC);
+	registerBoundaryCondition(HeatRadiationBC);
 }
 
 void

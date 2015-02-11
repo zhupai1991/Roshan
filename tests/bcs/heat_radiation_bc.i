@@ -78,7 +78,7 @@
   type = Transient
   solve_type = newton
   dt = 1E-02
-  num_steps = 10000
+  num_steps = 1
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05
@@ -88,12 +88,6 @@
   petsc_options_value = 'hypre boomeramg'
 []
 
-[Postprocessors]
-  [./run_time]
-    type = RunTime
-    time_type = active
-  [../]
-[]
 [Outputs]
   [./exodus]
     type = Exodus
