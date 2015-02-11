@@ -1,4 +1,5 @@
 #include "RoshanApp.h"
+
 #include "Moose.h"
 #include "AppFactory.h"
 #include "ActionFactory.h"
@@ -14,6 +15,7 @@
 
 //DG Kernel
 #include "HeatFaceKernel.h"
+#include "HeatTransferBC.h"
 
 //DG BC
 #include "DGDirichletBC.h"
@@ -63,6 +65,7 @@ RoshanApp::registerObjects(Factory & factory)
 	registerDGKernel(HeatFaceKernel);
 
 	registerBoundaryCondition(DGDirichletBC);
+	registerBoundaryCondition(HeatTransferBC);
 }
 
 void

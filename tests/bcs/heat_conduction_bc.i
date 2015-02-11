@@ -1,7 +1,9 @@
 [Mesh]
-  file = test_k.exo
-  uniform_refine = 1
-  second_order = true
+  type = GeneratedMesh
+  dim = 2
+  nx = 10
+  ny = 10
+  #second_order = true
 []
 
 [Variables]
@@ -15,7 +17,7 @@
   [./temp_ic]
     variable = temp
     type = ConstantIC
-    value = 0
+    value = 300
   [../]
 []
 
@@ -32,63 +34,40 @@
 
 [BCs]
   [./left]
-    type = DirichletBC
+    type = HeatTransferBC
     variable = temp
     boundary = left
-    value = 0
+    h = 1
+    Ta = 1000
   [../]
   [./right]
     type = DirichletBC
     variable = temp
     boundary = right
-    value = 100
+    value = 2000
   [../]
   [./top]
-    type = NeumannBC
+    type = DirichletBC
     variable = temp
     boundary = top
-    value = 0
+    value = 2000
   [../]
  [./bottom]
-    type = NeumannBC
+    type = DirichletBC
     variable = temp
     boundary = bottom
-    value = 0
+    value = 2000
   [../]
 []
 
 [Materials]
-  [./material1]
+  [./material]
     type = HeatConductionMaterial
     temperature = temp
-    block = 1
-    t_list = '0 1'
-    k_list = '0.01 0.01'
-    cp_list = '1 1'
-  [../]
-  [./materia2]
-    type = HeatConductionMaterial
-    temperature = temp
-    block = 2
-    t_list = '0 1'
-    k_list = '1 1'
-    cp_list = '1 1'
-  [../]
-  [./materia3]
-    type = HeatConductionMaterial
-    temperature = temp
-    block = 3
-    t_list = '0 1'
-    k_list = '10 10'
-    cp_list = '1 1'
-  [../]
-  [./material4]
-    type = HeatConductionMaterial
-    temperature = temp
-    block = 4
-    t_list = '0 1'
-    k_list = '100 100'
-    cp_list = '1 1'
+    block = 0
+    t_list = '0 0.5 1'
+    k_list = '1 1 1'
+    cp_list = '1 1 1'
   [../]
 []
 
@@ -96,7 +75,7 @@
   type = Transient
   solve_type = newton
   dt = 1E-02
-  num_steps = 10000
+  num_steps = 1
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05
@@ -107,8 +86,11 @@
 []
 
 [Outputs]
-  exodus = true
-  output_on = 'initial timestep_end'
+  [./exodus]
+    type = Exodus
+    #refinements = 1
+    output_on = 'initial timestep_end'
+  [../]
   [./console]
     type = Console
     perf_log = true

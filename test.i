@@ -1,12 +1,15 @@
 [Mesh]
   type = GeneratedMesh
   dim = 2
-  nx = 100
-  ny = 100
+  nx = 10
+  ny = 10
+  #second_order = true
 []
 
 [Variables]
   [./temp]
+    family = LAGRANGE
+    order = FIRST
   [../]
 []
 
@@ -31,10 +34,11 @@
 
 [BCs]
   [./left]
-    type = DirichletBC
+    type = HeatConductionBC
     variable = temp
     boundary = left
-    value = 300
+    h = 1
+    Ta = 1000
   [../]
   [./right]
     type = DirichletBC
@@ -43,16 +47,16 @@
     value = 2000
   [../]
   [./top]
-    type = NeumannBC
+    type = DirichletBC
     variable = temp
     boundary = top
-    value = 0
+    value = 2000
   [../]
  [./bottom]
-    type = NeumannBC
+    type = DirichletBC
     variable = temp
     boundary = bottom
-    value = 0
+    value = 2000
   [../]
 []
 
@@ -62,15 +66,15 @@
     temperature = temp
     block = 0
     t_list = '0 0.5 1'
-    k_list = '1 0.5 1'
-    cp_list = '1 0.5 1'
+    k_list = '1 1 1'
+    cp_list = '1 1 1'
   [../]
 []
 
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 1E-03
+  dt = 1E-02
   num_steps = 10000
 
   l_tol = 1e-04
@@ -81,9 +85,18 @@
   petsc_options_value = 'hypre boomeramg'
 []
 
+[Postprocessors]
+  [./run_time]
+    type = RunTime
+    time_type = active
+  [../]
+[]
 [Outputs]
-  exodus = true
-  output_on = 'initial timestep_end'
+  [./exodus]
+    type = Exodus
+    #refinements = 1
+    output_on = 'initial timestep_end'
+  [../]
   [./console]
     type = Console
     perf_log = true

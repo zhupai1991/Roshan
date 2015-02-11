@@ -1,8 +1,8 @@
 [Mesh]
   type = GeneratedMesh
   dim = 2
-  nx = 100
-  ny = 100
+  nx = 10
+  ny = 10
 []
 
 [Variables]
@@ -16,7 +16,7 @@
   [./temp_ic]
     variable = temp
     type = ConstantIC
-    value = 10
+    value = 300
   [../]
 []
 
@@ -36,38 +36,18 @@
   [./dg_diff]
     type = HeatFaceKernel
     variable = temp
-    #epsilon = -1
-    sigma = 6
   [../]
 []
 
 [BCs]
-  active = 'all'
-
-  [./all]
-    type = DGFunctionDiffusionDirichletBC
-    variable = temp
-    boundary = '0 1 2 3'
-    function = exact_fn
-    epsilon = -1
-    sigma = 6
-  [../]
-
   [./bcs]
     type = DGDirichletBC
     variable = temp
     boundary = '0 1 2 3'
-    value = 1
+    value = 2000
+    sigma = 100
   [../]
 []
-
-[Functions]
-  [./exact_fn]
-    type = ParsedGradFunction
-    value = 1
-    grad_x = 0
-    grad_y = 0
-  [../]
 
 [Materials]
   [./material]
@@ -83,7 +63,7 @@
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 1E-1
+  dt = 1E-03
   num_steps = 10000
 
   l_tol = 1e-04
