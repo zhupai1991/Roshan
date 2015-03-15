@@ -42,6 +42,7 @@
     ts = 400
     tw0 = 300
     qc = 0.01
+    data_file = qc.dat
   [../]
   [./right]
     type = DirichletBC

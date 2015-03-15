@@ -9,12 +9,17 @@ public:
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
+  void parsedQcData();
 
   Real _sigma;
   Real _epsilon;
   Real _ts;
   Real _tw0;
   Real _qc;
+
+  std::string _data_file;
+  std::vector<Point> _src_pts;
+  std::vector<Real> _src_qc;
 };
 
 template<>
