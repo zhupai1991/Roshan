@@ -31,6 +31,7 @@ HeatRadiationBC::HeatRadiationBC(const std::string & name, InputParameters param
 	{
 		parsedQcData();
 		InverseDistanceInterpolation<LIBMESH_DIM> * idi = new InverseDistanceInterpolation<LIBMESH_DIM>(this->comm(), 8, 2);
+//		InverseDistanceInterpolation<LIBMESH_DIM> * idi = new RadialBasisInterpolation<LIBMESH_DIM>(this->comm(), -1);
 		idi->get_source_points() = _src_pts;
 		idi->get_source_vals() = _src_qc;
 	    std::vector<std::string> field_vars;
@@ -42,7 +43,7 @@ HeatRadiationBC::HeatRadiationBC(const std::string & name, InputParameters param
 	    vector<string> field_name;
 	    field_name.push_back("qc");
 	    vector<Point> tgt_pts;
-	    tgt_pts.push_back(Point(0, 0.6 ,0));
+	    tgt_pts.push_back(Point(0, 0.5 ,0));
 	    vector<Real> tgt_vals;
 	    tgt_vals.resize(1);
 	    idi->interpolate_field_data(field_name, tgt_pts, tgt_vals);
@@ -75,20 +76,18 @@ void HeatRadiationBC::parsedQcData()
 	    mooseError("Error opening file '" + _data_file + "' from qc data.");
 
 	string line;
-	vector<Real> data;
 	getline(qc_file, line);
 	istringstream iss(line);
 	Real  f;
 	iss >> f;
-    cout << f << endl;
-	if(getline(qc_file, line))
+	while(getline(qc_file, line))
 	{
 		istringstream iss(line);
 		Real f;
+		vector<Real> data;
 		while(iss >> f)
-		{
 			data.push_back(f);
-		}
+
 		_src_pts.push_back(Point(data[0], data[1], data[2]));
 		_src_qc.push_back(data[3]);
 	}
