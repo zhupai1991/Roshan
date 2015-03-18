@@ -79,7 +79,7 @@
   type = Transient
   solve_type = newton
   dt = 1E-02
-  num_steps = 10000
+  num_steps = 1
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05
