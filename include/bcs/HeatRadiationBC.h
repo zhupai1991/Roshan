@@ -9,16 +9,18 @@ public:
 	HeatRadiationBC(const std::string & name, InputParameters parameters);
 
 protected:
+  virtual void computeResidual();
+  virtual void computeJacobian();
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
-  void parsedQcData();
+  void parsedFieldData();
   void interpolate(std::vector<Real> &qc, std::vector<Real>  &ts, std::vector<Point> &pts, Real t);
 
   Real _sigma;
   Real _epsilon;
-  Real _ts;
   Real _tw0;
-  Real _qc;
+  Real _ts[20];
+  Real _qc[20];
 
   MooseSharedPointer<InverseDistanceInterpolation<LIBMESH_DIM> > _idi;
   std::string _data_file;
