@@ -21,6 +21,8 @@
 #include "HeatTransferBC.h"
 #include "HeatRadiationBC.h"
 
+#include "OutputTest.h"
+
 template<>
 InputParameters validParams<RoshanApp>()
 {
@@ -68,6 +70,8 @@ RoshanApp::registerObjects(Factory & factory)
 	registerBoundaryCondition(DGDirichletBC);
 	registerBoundaryCondition(HeatTransferBC);
 	registerBoundaryCondition(HeatRadiationBC);
+
+	registerOutput(OutputTest);
 }
 
 void
