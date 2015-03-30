@@ -13,7 +13,7 @@ HeatFluxBC::HeatFluxBC(const std::string & name, InputParameters parameters) :
   _value(getParam<Real>("value"))
 {}
 
-Real HeatFluxBC::HeatFluxBC()
+Real HeatFluxBC::computeQpResidual()
 {
   return -_test[_i][_qp]*_value;
 }

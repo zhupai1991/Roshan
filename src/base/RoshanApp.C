@@ -20,10 +20,11 @@
 //DG BC
 #include "DGDirichletBC.h"
 #include "IsoThermalBC.h"
+#include "HeatFluxBC.h"
 #include "HeatTransferBC.h"
 #include "HeatRadiationBC.h"
 
-#include "OutputTest.h"
+//#include "OutputTest.h"
 
 template<>
 InputParameters validParams<RoshanApp>()
@@ -73,10 +74,11 @@ RoshanApp::registerObjects(Factory & factory)
 
 	registerBoundaryCondition(DGDirichletBC);
 	registerBoundaryCondition(IsoThermalBC);
+	registerBoundaryCondition(HeatFluxBC);
 	registerBoundaryCondition(HeatTransferBC);
 	registerBoundaryCondition(HeatRadiationBC);
 
-	registerOutput(OutputTest);
+//	registerOutput(OutputTest);
 }
 
 void
