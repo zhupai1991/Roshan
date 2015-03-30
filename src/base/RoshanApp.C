@@ -1,4 +1,5 @@
 #include "RoshanApp.h"
+#include "RoshanRevision.h"
 
 #include "Moose.h"
 #include "AppFactory.h"
@@ -18,6 +19,7 @@
 
 //DG BC
 #include "DGDirichletBC.h"
+#include "IsoThermalBC.h"
 #include "HeatTransferBC.h"
 #include "HeatRadiationBC.h"
 
@@ -43,6 +45,8 @@ RoshanApp::RoshanApp(const std::string & name, InputParameters parameters) :
 
   Moose::associateSyntax(_syntax, _action_factory);
   RoshanApp::associateSyntax(_syntax, _action_factory);
+
+  printHeader();
 }
 
 RoshanApp::~RoshanApp()
@@ -68,6 +72,7 @@ RoshanApp::registerObjects(Factory & factory)
 	registerDGKernel(HeatFaceKernel);
 
 	registerBoundaryCondition(DGDirichletBC);
+	registerBoundaryCondition(IsoThermalBC);
 	registerBoundaryCondition(HeatTransferBC);
 	registerBoundaryCondition(HeatRadiationBC);
 
@@ -77,4 +82,13 @@ RoshanApp::registerObjects(Factory & factory)
 void
 RoshanApp::associateSyntax(Syntax & syntax, ActionFactory & action_factory)
 {
+}
+
+void RoshanApp::printHeader()
+{
+	std::string line("*********************************\n\n");
+	Moose::out << COLOR_CYAN << line << COLOR_DEFAULT;
+	Moose::out << "热传导方程连续有限元解算器 Roshan \n\n";
+	Moose::out << "当前版本: " <<  COLOR_MAGENTA << ROSHAN_REVISION << COLOR_DEFAULT << std::endl;
+	Moose::out << COLOR_CYAN << line << COLOR_DEFAULT;
 }
