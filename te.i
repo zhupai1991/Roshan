@@ -1,57 +1,72 @@
 [Mesh]
-  file = test_k.exo
+  file = test1.exo
   uniform_refine = 1
   second_order = true
 []
 
 [Variables]
-  [./temp]
+  [./temprature]
     family = LAGRANGE
     order = FIRST
   [../]
 []
 
+[AuxVariables]
+  [./a]
+  [../]
+[]
+
+[AuxKernels]
+  [./aukernel_for_a]
+    type = CosAuxKernel
+    variable = a
+    T = temprature
+    coef = 1
+  []
+[]
+
 [ICs]
   [./temp_ic]
-    variable = temp
-    type = ConstantIC
+    variable = temprature
+    type = Strange
     value = 0
+    
   [../]
 []
 
 [Kernels]
   [./temporal]
     type = HeatConductionTimeDerivative
-    variable = temp
+    variable = temprature
   [../]
   [./diff]
     type = HeatConductionKernel
-    variable = temp
+    variable = temprature
   [../]
 []
 
 [BCs]
-  [./left]
-    type = DirichletBC
-    variable = temp
+  [./llleft]
+    type = IsoThermalBC
+    variable = temprature
     boundary = left
-    value = 0
+    value = 10
   [../]
   [./right]
-    type = DirichletBC
-    variable = temp
+    type = IsoThermalBC
+    variable = temprature
     boundary = right
     value = 100
   [../]
   [./top]
-    type = NeumannBC
-    variable = temp
+    type = HeatFluxBC
+    variable = temprature
     boundary = top
     value = 0
   [../]
  [./bottom]
-    type = NeumannBC
-    variable = temp
+    type = HeatFluxBC
+    variable = temprature
     boundary = bottom
     value = 0
   [../]
@@ -60,35 +75,40 @@
 [Materials]
   [./material1]
     type = HeatConductionMaterial
-    temperature = temp
+    temperature = temprature
     block = 1
-    t_list = '0 1'
-    k_list = '0.01 0.01'
-    cp_list = '1 1'
+    t_list = '0 1 2'
+    k_list = '0.01 0.02 0.03'
+    cp_list = '1 1 1'
+    a=temprature
   [../]
   [./materia2]
     type = HeatConductionMaterial
-    temperature = temp
+    temperature = temprature
     block = 2
     t_list = '0 1'
     k_list = '1 1'
     cp_list = '1 1'
+    a=temprature
   [../]
   [./materia3]
     type = HeatConductionMaterial
-    temperature = temp
+    temperature =temprature
     block = 3
     t_list = '0 1'
     k_list = '10 10'
     cp_list = '1 1'
+    a=temprature
+
   [../]
   [./material4]
     type = HeatConductionMaterial
-    temperature = temp
+    temperature = temprature
     block = 4
     t_list = '0 1'
     k_list = '100 100'
     cp_list = '1 1'
+    a=temprature
   [../]
 []
 
@@ -96,7 +116,7 @@
   type = Transient
   solve_type = newton
   dt = 1E-02
-  num_steps = 10000
+  num_steps = 1
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05

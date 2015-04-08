@@ -9,6 +9,7 @@ InputParameters validParams<HeatConductionMaterial>()
   params.addParam<std::vector<Real> >("t_list", "The vector of temperature values for building the piecewise function");
   params.addParam<std::vector<Real> >("k_list", "The vector of thermal conductivity values for building the piecewise function");
   params.addParam<std::vector<Real> >("cp_list", "The vector of specific heat values for building the piecewise function");
+  params.addRequiredCoupledVar("a","just a test");
   return params;
 }
 

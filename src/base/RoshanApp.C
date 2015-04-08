@@ -7,6 +7,7 @@
 #include "Syntax.h"
 
 #include "TestIC.h"
+#include "strange.h"
 
 #include "HeatConductionTimeDerivative.h"
 #include "HeatConductionKernel.h"
@@ -24,6 +25,7 @@
 #include "HeatTransferBC.h"
 #include "HeatRadiationBC.h"
 
+#include "CosAuxKernel.h"
 //#include "OutputTest.h"
 
 template<>
@@ -64,6 +66,7 @@ void
 RoshanApp::registerObjects(Factory & factory)
 {
 	registerInitialCondition(TestIC);
+	registerInitialCondition(Strange);
 
 	registerKernel(HeatConductionTimeDerivative);
 	registerKernel(HeatConductionKernel);
@@ -77,6 +80,8 @@ RoshanApp::registerObjects(Factory & factory)
 	registerBoundaryCondition(HeatFluxBC);
 	registerBoundaryCondition(HeatTransferBC);
 	registerBoundaryCondition(HeatRadiationBC);
+
+	registerAux(CosAuxKernel);
 
 //	registerOutput(OutputTest);
 }
