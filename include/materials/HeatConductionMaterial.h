@@ -25,6 +25,9 @@ private:
   MaterialProperty<Real> & _cp_dT;
   LinearInterpolation _func_k_T;
   LinearInterpolation _func_cp_T;
+  std::vector<Real> _T_list;
+  std::vector<Real> _k_list;
+
 };
 
 template<>

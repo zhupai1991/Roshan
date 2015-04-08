@@ -30,8 +30,7 @@
     variable = temprature
     type = Strange
     value = 0
-    
-  [../]
+    [../]
 []
 
 [Kernels]
@@ -80,7 +79,8 @@
     t_list = '0 1 2'
     k_list = '0.01 0.02 0.03'
     cp_list = '1 1 1'
-    a=temprature
+    property_file = k(T).data
+    
   [../]
   [./materia2]
     type = HeatConductionMaterial
@@ -89,7 +89,8 @@
     t_list = '0 1'
     k_list = '1 1'
     cp_list = '1 1'
-    a=temprature
+    property_file = k(T).data
+    
   [../]
   [./materia3]
     type = HeatConductionMaterial
@@ -98,8 +99,8 @@
     t_list = '0 1'
     k_list = '10 10'
     cp_list = '1 1'
-    a=temprature
-
+    property_file = k(T).data
+    
   [../]
   [./material4]
     type = HeatConductionMaterial
@@ -108,7 +109,8 @@
     t_list = '0 1'
     k_list = '100 100'
     cp_list = '1 1'
-    a=temprature
+    property_file = k(T).data
+    
   [../]
 []
 
