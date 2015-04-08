@@ -13,8 +13,11 @@ public:
 
 protected:
   virtual void computeProperties();
+  void readfile();
 
 private:
+  std::string _property_file;
+  int  tpoint;
   VariableValue & _temperature;
   MaterialProperty<Real> & _k;
   MaterialProperty<Real> & _k_dT;

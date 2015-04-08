@@ -9,12 +9,13 @@ InputParameters validParams<HeatConductionMaterial>()
   params.addParam<std::vector<Real> >("t_list", "The vector of temperature values for building the piecewise function");
   params.addParam<std::vector<Real> >("k_list", "The vector of thermal conductivity values for building the piecewise function");
   params.addParam<std::vector<Real> >("cp_list", "The vector of specific heat values for building the piecewise function");
-  params.addRequiredCoupledVar("a","just a test");
+  params.addParam<std::string>("property_file","The name of the property file");
   return params;
 }
 
 HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputParameters parameters) :
     Material(name, parameters),
+    _property_file( getParam<std::string>("data_file") ),
     _temperature(coupledValue("temperature")),
     _k(declareProperty<Real>("thermal_conductivity")),
     _k_dT(declareProperty<Real>("thermal_conductivity_dT")),
@@ -23,25 +24,31 @@ HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputPa
 	_func_k_T(getParam<std::vector<Real> >("t_list"), getParam<std::vector<Real> >("k_list")),
 	_func_cp_T(getParam<std::vector<Real> >("t_list"), getParam<std::vector<Real> >("cp_list"))
 {
-//  if (_thermal_conductivity_temperature_function && !_has_temp)
-//  {
-//    mooseError("Must couple with temperature if using thermal conductivity function");
-//  }
-//  if (isParamValid("thermal_conductivity") && _thermal_conductivity_temperature_function)
-//  {
-//    mooseError("Cannot define both thermal conductivity and thermal conductivity temperature function");
-//  }
-//  if (_specific_heat_temperature_function && !_has_temp)
-//  {
-//    mooseError("Must couple with temperature if using specific heat function");
-//  }
-//  if (isParamValid("specific_heat") && _specific_heat_temperature_function)
-//  {
-//    mooseError("Cannot define both specific heat and specific heat temperature function");
-//  }
-	if(isParamValid("t_list"))
-	{
-	}
+}
+
+void HeatConductionMaterial::readfile()
+{
+        using namespace std;
+		ifstream read_file(_property_file.c_str());
+		if(!read_file.good())
+		    mooseError("Error opening file '" +_property_file + "' from qc data.");
+
+//		    string line;
+//			getline(read_file, line);
+//			istringstream(line) >> tpoint;
+//			for(int i = 0; i < _num_pts; ++i)
+//			{
+//				getline(read_file, line);
+//				istringstream iss(line);
+//				Real f;
+//				vector<Real> data;
+//				while(iss >> f)
+//				data.push_back(f);
+//
+//
+//			}
+
+
 }
 
 void HeatConductionMaterial::computeProperties()
