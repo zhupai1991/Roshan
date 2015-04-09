@@ -77,9 +77,10 @@
     temperature = temprature
     block = 1
     t_list = '0 1 2'
+    roe_list = '1000 800 1000'
     k_list = '0.01 0.02 0.03'
     cp_list = '1 1 1'
-    property_file = k(T).data
+    property_file = k(T1).data
     
   [../]
   [./materia2]
@@ -87,19 +88,20 @@
     temperature = temprature
     block = 2
     t_list = '0 1'
+    roe_list = '2000 1500'
     k_list = '1 1'
     cp_list = '1 1'
-    property_file = k(T).data
-    
+    property_file = k(T2).data   
   [../]
   [./materia3]
     type = HeatConductionMaterial
     temperature =temprature
     block = 3
     t_list = '0 1'
+    roe_list = '1500 1000'
     k_list = '10 10'
     cp_list = '1 1'
-    property_file = k(T).data
+    property_file = k(T3).data
     
   [../]
   [./material4]
@@ -107,9 +109,10 @@
     temperature = temprature
     block = 4
     t_list = '0 1'
+    roe_list = '3000 2000'
     k_list = '100 100'
     cp_list = '1 1'
-    property_file = k(T).data
+    property_file = k(T4).data
     
   [../]
 []
@@ -118,7 +121,7 @@
   type = Transient
   solve_type = newton
   dt = 1E-02
-  num_steps = 1
+  num_steps = 100
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05
