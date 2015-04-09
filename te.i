@@ -64,10 +64,14 @@
     value = 0
   [../]
  [./bottom]
-    type = HeatFluxBC
+    type = HeatRadiationBC
     variable = temprature
     boundary = bottom
+    epsilon = 0.0001
+    sigma   =0.1
+    tw0 = 5
     value = 0
+    qc_file = qc.dat
   [../]
 []
 

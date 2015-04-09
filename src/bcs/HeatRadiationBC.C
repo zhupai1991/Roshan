@@ -14,6 +14,7 @@ InputParameters validParams<HeatRadiationBC>()
   params.addParam<Real>("ts", "const ts ");
   params.addParam<Real>("qc", "const qc");
   params.addParam<std::string>("data_file", "field data from file");
+  params.addParam<std::string>("qc_file", "qc data from file");
   params.addParam<Real>("power", 2, "distance power");
   params.addParam<int>("interp_pts", 8, "number of interpolate points");
 
@@ -25,29 +26,30 @@ HeatRadiationBC::HeatRadiationBC(const std::string & name, InputParameters param
   _sigma(getParam<Real>("sigma")),
   _epsilon(getParam<Real>("epsilon")),
   _tw0(getParam<Real>("tw0")),
-  _data_file(isParamValid("data_file") ? getParam<std::string>("data_file") : "")
+  _data_file(isParamValid("data_file") ? getParam<std::string>("data_file") : ""),
+  _qc_file(isParamValid("qc_file") ? getParam<std::string>("qc_file") : "")
 {
 	using namespace std;
-	if(_data_file != "")
-	{
-		parsedFieldData();
-
-		Real power = getParam<Real>("power");
-		int n_interp_pts = getParam<int>("interp_pts");
-		_idi = MooseSharedPointer<InverseDistanceInterpolation<LIBMESH_DIM> > (new InverseDistanceInterpolation<LIBMESH_DIM>(this->comm(), n_interp_pts, power));
-
-		_field_name.push_back("qc");
-		_field_name.push_back("ts");
-		_idi->set_field_variables(_field_name);
-		_idi->get_source_points() = _src_pts;
+	readqcfile();
+//	if(_data_file != "")
+//	{
+//		parsedFieldData();
+//
+//		Real power = getParam<Real>("power");
+//		int n_interp_pts = getParam<int>("interp_pts");
+//		_idi = MooseSharedPointer<InverseDistanceInterpolation<LIBMESH_DIM> > (new InverseDistanceInterpolation<LIBMESH_DIM>(this->comm(), n_interp_pts, power));
+//
+//		_field_name.push_back("qc");
+//		_field_name.push_back("ts");
+//		_idi->set_field_variables(_field_name);
+//		_idi->get_source_points() = _src_pts;
 
 //		vector<Real> qc, ts;
 //		vector<Point> pts;
 //		pts.push_back(Point(0, 0.55, 0));
 //		interpolate(qc, ts, pts, -1);
 //        cout << *_idi << endl;
-	}
-
+//	}
 }
 
 void HeatRadiationBC::computeResidual()
@@ -140,6 +142,47 @@ void HeatRadiationBC::parsedFieldData()
 			mooseError("时间序列必须递增！");
 }
 
+void HeatRadiationBC::readqcfile()
+{
+	using namespace std;
+	ifstream qc_read(_qc_file.c_str());
+    if(!qc_read.good())
+	     mooseError("Error opening file '" + _qc_file + "' from  data.");
+            string line;
+            getline(qc_read, line);
+    		istringstream iss(line);
+    		Real f;
+    		vector<Real> head;
+    		while(iss >> f)
+    		head.push_back(f);
+    	   for(int i = 0; i < (head[0] * head[1]); ++i)
+    	   {
+    		   int j = 0;
+    		    std::vector<Real>_qc_d;
+    		    std::vector<Real>_ts_d;
+    		   getline(qc_read, line);
+   		       istringstream transline(line);
+   		       Real d;
+   		       vector<Real> store;
+   		       while (transline >> d)
+   		       {
+   		    	   store.push_back(d);
+   		    	   cout<<"store["<<j<<"]="<<store[j]<<endl;
+ 				  j+=1;
+                }
+   		      Point pp(store[0],store[1],store[2]);
+		    _qc_d.push_back(store[3]);
+		    _qc_d.push_back( store[7]);
+		    _ts_d.push_back( store[4]);
+		    _ts_d.push_back( store[7]);
+		    _src_qc.push_back( _qc_d);
+		    _src_ts.push_back(_ts_d);
+		    _src_pts.push_back(pp);
+
+    	   }
+
+
+}
 
 
 void HeatRadiationBC::interpolate(std::vector<Real> &qc, std::vector<Real>  &ts, std::vector<Point> &pts, Real t)

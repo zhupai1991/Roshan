@@ -16,6 +16,7 @@ protected:
   void parsedFieldData();
   void interpolate(std::vector<Real> &qc, std::vector<Real>  &ts, std::vector<Point> &pts, Real t);
 
+
   Real _sigma;
   Real _epsilon;
   Real _tw0;
@@ -24,13 +25,17 @@ protected:
 
   MooseSharedPointer<InverseDistanceInterpolation<LIBMESH_DIM> > _idi;
   std::string _data_file;
+  std::string _qc_file;
   std::vector<Point> _src_pts;
   std::vector<std::vector<Real> > _src_qc;
   std::vector<std::vector<Real> > _src_ts;
+  std::vector<std::vector<Point> > _src_points;
   std::vector<Real> _time_step;
   std::vector<std::string> _field_name;
   int _num_pts;
   int _num_time_step;
+private:
+  void readqcfile();
 };
 
 template<>

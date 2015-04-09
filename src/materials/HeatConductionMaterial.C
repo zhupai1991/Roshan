@@ -48,7 +48,7 @@ HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputPa
 void HeatConductionMaterial::readFile()
 {
 	    using namespace std;
-        cout <<"reading file"<<endl;
+//        cout <<"reading file"<<endl;
 		ifstream read_file(_property_file.c_str());
 		if(!read_file.good())
 		    mooseError("Error opening file '" +_property_file + "' from qc data.");
@@ -67,17 +67,17 @@ void HeatConductionMaterial::readFile()
 				while(iss >> f)
 				{
 				 data.push_back(f);
-				 cout<<"data["<<j<<"]="<<data[j]<<endl;
+//				 cout<<"data["<<j<<"]="<<data[j]<<endl;
 				  j+=1;
 				}
                 _T_list.push_back(data[0]);
                 _roe_list.push_back(data[1]);
                 _k_list.push_back(data[2]);
                 _cp_list.push_back(data[3]);
-				cout<<"T["<<i<<"]= "<<_T_list[i]<<endl;
-				cout<<"roe["<<i<<"]= "<<_roe_list[i]<<endl;
-				cout<<"k["<<i<<"]= "<<_k_list[i]<<endl;
-				cout<<"cp["<<i<<"]= "<<_cp_list[i]<<endl;
+//				cout<<"T["<<i<<"]= "<<_T_list[i]<<endl;
+//				cout<<"roe["<<i<<"]= "<<_roe_list[i]<<endl;
+//				cout<<"k["<<i<<"]= "<<_k_list[i]<<endl;
+//				cout<<"cp["<<i<<"]= "<<_cp_list[i]<<endl;
 			}
 
 			check();
