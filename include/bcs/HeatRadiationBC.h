@@ -3,6 +3,9 @@
 #include "IntegratedBC.h"
 #include "libmesh/meshfree_interpolation.h"
 
+using std::vector;
+using std::string;
+
 class HeatRadiationBC : public IntegratedBC
 {
 public:
@@ -13,7 +16,6 @@ protected:
   virtual void computeJacobian();
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
-  void parsedFieldData();
   void interpolate(std::vector<Real> &qc, std::vector<Real>  &ts, std::vector<Point> &pts, Real t);
 
 
@@ -24,14 +26,13 @@ protected:
   Real _qc[20];
 
   MooseSharedPointer<InverseDistanceInterpolation<LIBMESH_DIM> > _idi;
-  std::string _data_file;
-  std::string _qc_file;
-  std::vector<Point> _src_pts;
-  std::vector<std::vector<Real> > _src_qc;
-  std::vector<std::vector<Real> > _src_ts;
-  std::vector<std::vector<Point> > _src_points;
-  std::vector<Real> _time_step;
-  std::vector<std::string> _field_name;
+  string _data_file;
+ string _qc_file;
+  vector<vector<Real> > _src_qc;
+  vector<vector<Real> > _src_ts;
+  vector<vector<Point> >_src_pts;
+  vector<Real> _time_step;
+  vector<string> _field_name;
   int _num_pts;
   int _num_time_step;
 private:
