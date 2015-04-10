@@ -33,6 +33,9 @@ protected:
   vector<vector<Point> >_src_pts;
   vector<Real> _time_step;
   vector<string> _field_name;
+
+//  vector< MooseSharedPointer<InverseDistanceInterpolation<LIBMESH_DIM>  > > _idis;
+  vector<InverseDistanceInterpolation<LIBMESH_DIM> *  > _idis;
   int _num_pts;
   int _num_time_step;
 private:

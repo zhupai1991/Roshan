@@ -26,6 +26,29 @@ HeatRadiationBC::HeatRadiationBC(const std::string & name, InputParameters param
   _qc_file(isParamValid("qc_file") ? getParam<std::string>("qc_file") : "")
 {
 	readqcfile();
+
+	Real power = getParam<Real>("power");
+	int n_interp_pts = getParam<int>("interp_pts");
+	_idi = MooseSharedPointer<InverseDistanceInterpolation<LIBMESH_DIM> > (new InverseDistanceInterpolation<LIBMESH_DIM>(this->comm(), n_interp_pts, power));
+
+	_field_name.push_back("qc");
+	_field_name.push_back("ts");
+
+	for(int t = 0  ; t < _num_time_step; ++t)
+	{
+		vector<Real> src_vals;
+		for(int i = 0; i < _num_pts; ++i)
+		{
+			src_vals.push_back(_src_qc[t][i]);
+			src_vals.push_back(_src_ts[t][i]);
+		}
+
+		_idis.push_back(new InverseDistanceInterpolation<LIBMESH_DIM>(this->comm(), n_interp_pts, power));
+		_idis[t]->set_field_variables(_field_name);
+		_idis[t]->get_source_points() = _src_pts[t];
+		_idis[t]->get_source_vals() = src_vals;
+	}
+
 }
 
 void HeatRadiationBC::computeResidual()
@@ -120,17 +143,6 @@ void HeatRadiationBC::readqcfile()
 
 void HeatRadiationBC::interpolate(std::vector<Real> &qc, std::vector<Real>  &ts, std::vector<Point> &pts, Real t)
 {
-//	if(_data_file == "")
-//	{
-//		for(int ip = 0; ip < pts.size(); ++ip)
-//		{
-//			qc.push_back(getParam<Real>("qc"));
-//			ts.push_back(getParam<Real>("ts"));
-//		}
-//
-//		return;
-//	}
-
 	int lower, upper;
 	if(t < _time_step.front())
 	{
@@ -156,19 +168,21 @@ void HeatRadiationBC::interpolate(std::vector<Real> &qc, std::vector<Real>  &ts,
 	{
 		lam = (_time_step[upper] - t)/(_time_step[upper] - _time_step[lower]);
 	}
-	std::vector<Real> src_vals, tgt_vals;
-    for(int i  = 0; i < _num_pts; ++i)
-    {
-    	src_vals.push_back(lam*_src_qc[lower][i] + (1-lam)*_src_qc[upper][i]);
-    	src_vals.push_back(lam*_src_ts[lower][i] + (1-lam)*_src_ts[upper][i]);
-    }
-	_idi->get_source_vals() = src_vals;
-	_idi->interpolate_field_data(_field_name, pts, tgt_vals);
+	vector<Real> tgt_val_lower,  tgt_val_upper;
+	_idis[lower]->interpolate_field_data(_field_name, pts, tgt_val_lower);
+	_idis[upper]->interpolate_field_data(_field_name, pts, tgt_val_upper);
+
+	vector<Real> tgt_val_current;
+	for(int i  = 0; i < tgt_val_lower.size(); ++i)
+	{
+		tgt_val_current.push_back(lam*tgt_val_lower[i] + (1-lam)*tgt_val_upper[i]);
+	}
 
 	int num_val = _field_name.size();
 	for(int ip = 0; ip < pts.size(); ++ip)
 	{
-		qc.push_back(tgt_vals[num_val*ip]);
-		ts.push_back(tgt_vals[num_val*ip+1]);
+		qc.push_back(tgt_val_current[num_val*ip]);
+		ts.push_back(tgt_val_current[num_val*ip+1]);
 	}
+
 }
