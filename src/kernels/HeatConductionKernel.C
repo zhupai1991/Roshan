@@ -17,6 +17,8 @@ HeatConductionKernel::HeatConductionKernel(const std::string & name, InputParame
 
 Real HeatConductionKernel::computeQpResidual()
 {
+//	std::cout << _k[_qp] <<std::endl;
+
   Real r(0);
   r = _k[_qp]*_grad_u[_qp] * _grad_test[_i][_qp];
   return r;

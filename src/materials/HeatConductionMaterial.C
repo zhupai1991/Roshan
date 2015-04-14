@@ -24,7 +24,9 @@ HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputPa
     _k(declareProperty<Real>("thermal_conductivity")),
     _k_dT(declareProperty<Real>("thermal_conductivity_dT")),
     _cp(declareProperty<Real>("specific_heat")),
-    _cp_dT( declareProperty<Real>("specific_heat_dT"))
+    _cp_dT( declareProperty<Real>("specific_heat_dT")),
+    _rho(declareProperty<Real>("density")),
+    _rho_dT( declareProperty<Real>("density_dT"))
 
 {
 		if (_property_file == "")
@@ -92,6 +94,8 @@ void HeatConductionMaterial::computeProperties()
     _k_dT[qp] =  (_func_k_T.sample(_temperature[qp]+epsi) - _func_k_T.sample(_temperature[qp]-epsi))/2/epsi ;
     _cp[qp] =  _func_cp_T.sample(_temperature[qp]);
     _cp_dT[qp] = (_func_cp_T.sample(_temperature[qp]+epsi) - _func_cp_T.sample(_temperature[qp]-epsi))/2/epsi ;
+    _rho[qp] = _func_roe_T.sample(_temperature[qp]);
+    _rho_dT[qp] = (_func_roe_T.sample(_temperature[qp]+epsi) - _func_roe_T.sample(_temperature[qp]-epsi))/2/epsi ;
   }
 }
 

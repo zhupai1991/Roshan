@@ -25,6 +25,8 @@ private:
   MaterialProperty<Real> & _k_dT;
   MaterialProperty<Real> & _cp;
   MaterialProperty<Real> & _cp_dT;
+  MaterialProperty<Real> & _rho;
+  MaterialProperty<Real> & _rho_dT;
   LinearInterpolation _func_roe_T;
   LinearInterpolation _func_k_T;
   LinearInterpolation _func_cp_T;

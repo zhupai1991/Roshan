@@ -72,6 +72,7 @@
     t_list = '0 0.5 1'
     k_list = '1 1 1'
     cp_list = '1 1 1'
+    property_file = 
   [../]
 []
 

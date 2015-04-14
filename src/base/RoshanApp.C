@@ -28,6 +28,10 @@
 #include "CosAuxKernel.h"
 //#include "OutputTest.h"
 
+#include "AnalyticSolution.h"
+
+#include "ThetaL2Error.h"
+
 template<>
 InputParameters validParams<RoshanApp>()
 {
@@ -82,6 +86,10 @@ RoshanApp::registerObjects(Factory & factory)
 	registerBoundaryCondition(HeatRadiationBC);
 
 	registerAux(CosAuxKernel);
+
+	registerFunction(AnalyticSolution);
+
+	registerPostprocessor(ThetaL2Error);
 
 //	registerOutput(OutputTest);
 }

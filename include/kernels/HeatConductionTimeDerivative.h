@@ -16,8 +16,8 @@ protected:
 private:
   MaterialProperty<Real> & _cp;
   MaterialProperty<Real> & _cp_dT;
-  Real _density;
-//  const MaterialProperty<Real> & _density;
+  MaterialProperty<Real> & _rho;
+  MaterialProperty<Real> & _rho_dT;
 };
 
 template<>
