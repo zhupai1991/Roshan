@@ -1,6 +1,15 @@
 [Mesh]
-  file = cube-hole.e
-[]
+  type = GeneratedMesh
+  dim = 3
+  xmin = -0.05
+  ymin = -0.05
+  zmin = -0.05
+  xmax = 0.05
+  ymax = 0.05
+  zmax = 0.05
+  nx = 100
+  ny = 100
+  nz = 100
 
 [Variables]
   [./temp]
@@ -27,28 +36,45 @@
 
 [BCs]
   [./left]
-    type = DirichletBC
+    type = HeatTransferBC
     variable = temp
     boundary = left
-    value = 0
+    h = 1000
+    Ta = 5000
   [../]
   [./right]
-    type = DirichletBC
+    type = HeatTransferBC
     variable = temp
     boundary = right
-    value = 1
+    h = 1000
+    Ta = 100
   [../]
   [./top]
-    type = NeumannBC
+    type = HeatTransferBC
     variable = temp
     boundary = top
-    value = -1
+    h = 1000
+    Ta = 700
   [../]
  [./bottom]
-    type = NeumannBC
+    type = DirichletBC
     variable = temp
     boundary = bottom
-    value = 0
+    value = 300
+  [../]
+ [./front]
+    type = HeatTransferBC
+    variable = temp
+    boundary = front
+    h = 1000
+    Ta = 100
+  [../]
+  [./back]
+   type = HeatTransferBC
+    variable = temp
+    boundary = back
+    h = 1500
+    Ta = 2000
   [../]
 []
 
@@ -56,18 +82,19 @@
   [./material]
     type = HeatConductionMaterial
     temperature = temp
-    block = 1
-    t_list =  '1 2'
+    block = 0
+    t_list =  '100 200'
+    roe_list = '4000 4000'
     k_list =  '1 1'
-    cp_list = '1 1'
+    cp_list = '500 500'
   [../]
 []
 
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 1E-01
-  num_steps = 10000
+  dt = 1E-02
+  num_steps = 1000
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05

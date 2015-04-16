@@ -1,10 +1,5 @@
 [Tests]
-  [./tranfer_bc]
-    type = 'Exodiff'
-    input = 'heat_conduction_bc.i'
-    exodiff = 'heat_conduction_bc_exodus.e'
-  [../]
-  [./radiation_bc]
+  [./test]
     type = 'Exodiff'
     input = 'heat_radiation_bc.i'
     exodiff = 'heat_radiation_bc_exodus.e'

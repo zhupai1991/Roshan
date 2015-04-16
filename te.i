@@ -28,8 +28,8 @@
 [ICs]
   [./temp_ic]
     variable = temprature
-    type = Strange
-    value = 0
+    type = ConstantIC
+    value = 300
     [../]
 []
 
@@ -49,29 +49,25 @@
     type = IsoThermalBC
     variable = temprature
     boundary = left
-    value = 10
+    value = 300
   [../]
   [./right]
     type = IsoThermalBC
     variable = temprature
     boundary = right
-    value = 100
+    value = 300
   [../]
   [./top]
     type = HeatFluxBC
     variable = temprature
     boundary = top
-    value = 0
+    value = 1e6
   [../]
  [./bottom]
-    type = HeatRadiationBC
+    type = HeatFluxBC
     variable = temprature
     boundary = bottom
-    epsilon = 0.0001
-    sigma   =0.1
-    tw0 = 5
-    value = 0
-    qc_file = qc.dat
+    value = -1e4
   [../]
 []
 
@@ -80,10 +76,10 @@
     type = HeatConductionMaterial
     temperature = temprature
     block = 1
-    t_list = '0 1 2'
-    roe_list = '1000 800 1000'
-    k_list = '0.01 0.02 0.03'
-    cp_list = '1 1 1'
+    t_list = '300 500 700'
+    roe_list = '1000 1000 1000'
+    k_list = '1 2 3'
+    cp_list = '100 100 100'
     property_file = k(T1).data
     
   [../]
@@ -92,9 +88,9 @@
     temperature = temprature
     block = 2
     t_list = '0 1'
-    roe_list = '2000 1500'
-    k_list = '1 1'
-    cp_list = '1 1'
+    roe_list = '2000 2000'
+    k_list = '50 50'
+    cp_list = '100 100'
     property_file = k(T2).data   
   [../]
   [./materia3]
@@ -125,7 +121,7 @@
   type = Transient
   solve_type = newton
   dt = 1E-02
-  num_steps = 100
+  num_steps = 1000
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05

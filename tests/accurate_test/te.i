@@ -1,12 +1,13 @@
 [Mesh]
   type = GeneratedMesh
-  dim = 2
-  nx = 10
-  ny = 10
+  dim = 1
+  xmin = 0
+  xmax =0.01
+  nx = 40
 []
 
 [Variables]
-  [./temp]
+  [./temprature]
     family = LAGRANGE
     order = FIRST
   [../]
@@ -14,7 +15,7 @@
 
 [ICs]
   [./temp_ic]
-    variable = temp
+    variable = temprature
     type = ConstantIC
     value = 300
   [../]
@@ -23,40 +24,25 @@
 [Kernels]
   [./temporal]
     type = HeatConductionTimeDerivative
-    variable = temp
+    variable = temprature
   [../]
   [./diff]
     type = HeatConductionKernel
-    variable = temp
+    variable = temprature
   [../]
 []
 
 [BCs]
   [./left]
-    type = HeatRadiationBC
-    variable = temp
+    type = HeatFluxBC
+    variable = temprature
     boundary = left
-    sigma = 1E-06
-    epsilon = 1E-06
-    tw0 = 300
-    qc_file = qc.dat
+    value = 7.5E+05
   [../]
   [./right]
-    type = IsoThermalBC
-    variable = temp
-    boundary = right
-    value = 2000
-  [../]
-  [./top]
-    type = IsoThermalBC
-    variable = temp
-    boundary = top
-    value = 2000
-  [../]
- [./bottom]
     type = HeatFluxBC
-    variable = temp
-    boundary = bottom
+    variable = temprature
+    boundary = right
     value = 0
   [../]
 []
@@ -64,23 +50,40 @@
 [Materials]
   [./material]
     type = HeatConductionMaterial
-    temperature = temp
+    temperature = temprature
     block = 0
-    t_list = '0 1'
-    roe_list = '2300 2300'
-    k_list = '1 1'
-    cp_list = '100 100'
+    t_list = '300 1300'
+    roe_list = '8000 8000'
+    k_list = '10 100'
+    cp_list = '500 5000'
   [../]
 []
+
+
+[Functions]
+  [./analy_solution]
+    type = AnalyticSolution
+  [../]
+[]
+
+
+[Postprocessors]
+  [./error]
+    type = ThetaL2Error
+    function = analy_solution
+    variable = temprature
+  [../]
+[] 
 
 [Executioner]
   type = Transient
   solve_type = newton
+  scheme = bdf2
   dt = 1E-02
-  num_steps = 5
+  num_steps = 200
 
-  l_tol = 1e-04
-  nl_rel_tol = 1e-05
+  l_tol = 1e-06
+  nl_rel_tol = 1e-08
   l_max_its = 10
   nl_max_its = 10
   petsc_options_iname = '-pc_type -pc_hypre_type'
@@ -88,10 +91,8 @@
 []
 
 [Outputs]
-  [./exodus]
-    type = Exodus
-    output_on = 'initial timestep_end'
-  [../]
+  exodus = true
+  output_on = 'initial timestep_end'
   [./console]
     type = Console
     perf_log = true
