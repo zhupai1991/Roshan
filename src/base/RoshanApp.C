@@ -1,4 +1,6 @@
 #include "RoshanApp.h"
+
+#include "../../include/kernels/RhoTestKernel.h"
 #include "RoshanRevision.h"
 
 #include "Moose.h"
@@ -11,8 +13,9 @@
 
 #include "HeatConductionTimeDerivative.h"
 #include "HeatConductionKernel.h"
-
+#include "DensityKernel.h"
 #include "HeatConductionMaterial.h"
+#include "PyrolysisMaterial.h"
 
 
 //DG Kernel
@@ -74,8 +77,11 @@ RoshanApp::registerObjects(Factory & factory)
 
 	registerKernel(HeatConductionTimeDerivative);
 	registerKernel(HeatConductionKernel);
+	registerKernel(DensityKernel);
+	registerKernel(RhoTestKernel);
 
 	registerMaterial(HeatConductionMaterial);
+	registerMaterial(PyrolysisMaterial);
 
 	registerDGKernel(HeatFaceKernel);
 
