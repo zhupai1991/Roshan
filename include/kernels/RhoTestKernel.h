@@ -6,19 +6,20 @@ class RhoTestKernel : public Kernel
 {
 public:
 
-	 RhoTestKernel(const std::string & name, InputParameters parameters);
-
+ RhoTestKernel(const std::string & name, InputParameters parameters);
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
-
+  virtual Real computeQpOffDiagJacobian(unsigned int jvar);
+   Real Source(Real rho,Real T);
 private:
     Real _rhov;
     Real _rhoc;
     Real _B;
     Real _ER;
-    Real _T0;
     int _nn;
+    VariableValue & _T;
+    unsigned int _T_num;
 
 };
 

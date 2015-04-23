@@ -11,28 +11,75 @@
     order = FIRST
   [../]
 
+  [./temp]
+    family = LAGRANGE
+    order = FIRST  
+  [../]
 []
 
 [ICs]
-
-  [./temp_rho]
+  [./rho_ics]
     variable = rho
     type = ConstantIC
     value = 3000
+  [../]
+
+  [./temp_ics]
+    variable = temp
+    type = ConstantIC
+    value = 300
   [../]
 []
 
 [Kernels]
   [./rho_dT]
     type = TimeDerivative
-    variable = rho
+    variable = rho   
   [../]
-  [./temporal_temp]
-    type = Rhotestkernel
+  [./source_rho]
+    type = RhoTestKernel
     variable = rho
+    CoupledVar = temp
   [../]
+  [./temp_dt]
+    type = TempTimeDerivative
+    variable = temp
+    CoupledRho = rho
+  [../]
+  [./diff_temp]
+    type = TempTestKernel
+    variable = temp
+  [../] 
   
 []
+[BCs]
+  [./left]
+    type = HeatFluxBC
+    variable = temp
+    boundary = left
+    value = 0
+  [../]
+  [./right]
+    type = HeatFluxBC
+    variable = temp
+    boundary = right
+    value = 0
+  [../]
+  [./top]
+    type = HeatFluxBC
+    variable = temp
+    boundary = top
+    value = 90000
+  [../]
+ [./bottom]
+    type = IsoThermalBC
+    variable = temp
+    boundary = bottom
+    value = 300
+  [../]
+[]
+
+
 
 [Executioner]
   type = Transient
