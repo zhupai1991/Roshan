@@ -1,6 +1,8 @@
 #include "RoshanApp.h"
 
-#include "../../include/kernels/RhoTestKernel.h"
+#include "../../include/kernels/PyroRhoChangeKernel.h"
+#include "../../include/kernels/PyroTempTimeDerivative.h"
+#include "../../include/kernels/TempDiffusionKernel.h"
 #include "RoshanRevision.h"
 
 #include "Moose.h"
@@ -16,13 +18,8 @@
 #include "DensityKernel.h"
 #include "HeatConductionMaterial.h"
 #include "PyrolysisMaterial.h"
-#include "TempTimeDerivative.h"
-#include "RhoTestKernel.h"
+#include "PyrolysisSource.h"
 
-#include "TempTestKernel.h"
-
-
-//DG Kernel
 #include "HeatFaceKernel.h"
 
 //DG BC
@@ -82,9 +79,10 @@ RoshanApp::registerObjects(Factory & factory)
 	registerKernel(HeatConductionTimeDerivative);
 	registerKernel(HeatConductionKernel);
 	registerKernel(DensityKernel);
-	registerKernel(RhoTestKernel);
-	registerKernel (TempTimeDerivative);
-	registerKernel (TempTestKernel);
+	registerKernel(PyroRhoChangeKernel);
+	registerKernel (PyroTempTimeDerivative);
+	registerKernel (TempDiffusionKernel);
+	registerKernel (PyrolysisSource);
 
 	registerMaterial(HeatConductionMaterial);
 	registerMaterial(PyrolysisMaterial);

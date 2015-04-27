@@ -1,30 +1,30 @@
-#include "../../include/kernels/RhoTestKernel.h"
+#include "../../include/kernels/PyroRhoChangeKernel.h"
 
 template<>
-InputParameters validParams<RhoTestKernel>()
+InputParameters validParams<PyroRhoChangeKernel>()
 {
   InputParameters params = validParams<Kernel>();
-  params.addClassDescription("Test rho change");
-  params.addRequiredCoupledVar("CoupledVar","Coupled Variable");
+  params.addClassDescription(" rho changes with T");
+  params.addRequiredCoupledVar("temperature","Coupled Variable");
   return params;
 }
 
- RhoTestKernel::RhoTestKernel(const std::string & name, InputParameters parameters) :
+ PyroRhoChangeKernel::PyroRhoChangeKernel(const std::string & name, InputParameters parameters) :
      Kernel(name, parameters),
-     _rhov(3000),
-     _rhoc(1500),
-     _B(1E13),
-     _ER(3E4),
-     _nn(3),
-	 _T(coupledValue("CoupledVar")),
-    _T_num(coupled("CoupledVar"))
+     _rhov(1448),
+     _rhoc(1185),
+     _B(11000),
+     _ER(10000),
+     _nn(2),
+	 _T(coupledValue("temperature")),
+    _T_num(coupled("temperature"))
 
 {
 }
 
 
 
- Real RhoTestKernel::computeQpResidual()
+ Real PyroRhoChangeKernel::computeQpResidual()
 {
 //	std::cout << _k[_qp] <<std::endl;
 //  Real tmp = (_u[_qp]-_rhoc)/_rhov;
@@ -33,7 +33,7 @@ InputParameters validParams<RhoTestKernel>()
   return  Source(_u[_qp],_T[_qp]) *_test[_i][_qp];
 }
 
-Real RhoTestKernel::computeQpJacobian()
+Real PyroRhoChangeKernel::computeQpJacobian()
 {
 	Real epsi = 1E-08;
 	Real source = Source(_u[_qp],_T[_qp]);
@@ -41,7 +41,7 @@ Real RhoTestKernel::computeQpJacobian()
   return (source_new-source)/epsi*_phi[_j][_qp]*_test[_i][_qp];
 }
 
- Real  RhoTestKernel::computeQpOffDiagJacobian(unsigned int jvar)
+ Real  PyroRhoChangeKernel::computeQpOffDiagJacobian(unsigned int jvar)
  {
 
 
@@ -57,11 +57,11 @@ Real RhoTestKernel::computeQpJacobian()
 		 return (0);
 	 }
  }
-Real RhoTestKernel::Source(Real rho,Real T)
+Real PyroRhoChangeKernel::Source(Real rho,Real T)
 {
 	 if (T>600)
 	 {
-      if ((rho-_rhoc)<1000)
+      if ((rho-_rhoc)<1)
     	  {
     	  return 0;
     	  }

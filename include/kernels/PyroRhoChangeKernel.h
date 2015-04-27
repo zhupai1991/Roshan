@@ -2,11 +2,11 @@
 
 #include "Kernel.h"
 
-class RhoTestKernel : public Kernel
+class PyroRhoChangeKernel : public Kernel
 {
 public:
 
- RhoTestKernel(const std::string & name, InputParameters parameters);
+ PyroRhoChangeKernel(const std::string & name, InputParameters parameters);
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
@@ -24,4 +24,4 @@ private:
 };
 
 template<>
-InputParameters validParams<RhoTestKernel>();
+InputParameters validParams<PyroRhoChangeKernel>();

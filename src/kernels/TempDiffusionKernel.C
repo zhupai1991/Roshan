@@ -1,20 +1,20 @@
-#include "../../include/kernels/TempTestKernel.h"
+#include "TempDiffusionKernel.h"
 
 template<>
-InputParameters validParams<TempTestKernel>()
+InputParameters validParams<TempDiffusionKernel>()
 {
   InputParameters params = validParams<Kernel>();
   params.addClassDescription("Test rho change");
   return params;
 }
 
-TempTestKernel::TempTestKernel(const std::string & name, InputParameters parameters) :
+TempDiffusionKernel::TempDiffusionKernel(const std::string & name, InputParameters parameters) :
      Kernel(name, parameters),
-     _k(50)
+     _k(0.75)
 {
 }
 
-Real TempTestKernel::computeQpResidual()
+Real TempDiffusionKernel::computeQpResidual()
 {
 //	std::cout << _k[_qp] <<std::endl;
   Real r(0);
@@ -22,7 +22,7 @@ Real TempTestKernel::computeQpResidual()
   return r;
 }
 
-Real TempTestKernel::computeQpJacobian()
+Real TempDiffusionKernel::computeQpJacobian()
 {
 	  return _k*_grad_phi[_j][_qp] * _grad_test[_i][_qp];
 }

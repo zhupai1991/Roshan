@@ -98,7 +98,7 @@
   solve_type = newton
   dt = 5E-02
   scheme = bdf2
-  num_steps = 2000
+  num_steps = 2
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05

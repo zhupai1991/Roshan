@@ -1,0 +1,7 @@
+[Tests]
+  [./test]
+    type = 'Exodiff'
+    input = 'rhochange.i'
+    exodiff = 'rhochange_out.e'
+  [../]
+[]
