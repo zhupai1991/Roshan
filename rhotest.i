@@ -19,7 +19,18 @@
     family = LAGRANGE
     order = FIRST  
   [../]
+
+ [./pressure]
+    family = LAGRANGE
+    order = FIRST
+  [../]
 []
+
+[AuxVariables]
+  [./rho_dt]
+    order = FIRST
+    family = LAGRANGE
+  [../]
 
 [ICs]
   [./rho_ics]
@@ -27,38 +38,47 @@
     type = ConstantIC
     value = 1448
   [../]
-
   [./temp_ics]
     variable = temp
     type = ConstantIC
     value = 300
   [../]
+ [./pressure_ics]
+    variable = pressure
+    type = ConstantIC
+    value = 0
+  [../]
+[]
+
+[AuxKernels]
+  [./rho_dt]
+    type = RhoTimeDerivative
+    variable =rho_dt
+    rho = rho   
+  [../]
 []
 
 [Kernels]
-  [./rho_dT]
-    type = TimeDerivative
-    variable = rho   
-  [../]
-  [./source_rho]
-    type = PyroRhoChangeKernel
+  [./rho_change]
+    type = PyrolysisDensityKernel
     variable = rho
     temperature = temp
   [../]
-  [./temp_dt]
-    type = PyroTempTimeDerivative
+  [./energy]
+    type = PyrolysisEnergeKernel
     variable = temp
     rho = rho
   [../]
-  [./diff_temp]
-    type = TempDiffusionKernel
-    variable = temp
-  [../] 
-  [./pyrolysis_source]
-    type = PyrolysisSource
-    variable = temp
+  [./ Pyrolysis_GasPressure]
+    type =  PyrolysisGasPressure
+    variable = pressure
+  [../]
+  [./Pyrolysis_GasSource]
+    type = PyrolysisGasSource
+    variable = pressure
     rho = rho
   [../]
+
   
 []
 [BCs]
@@ -72,7 +92,7 @@
      type = HeatTransferBC
     variable = temp
     boundary = right
-    h = 1500
+    h = 0
     Ta = 1000
   [../]
   [./top]
@@ -80,7 +100,7 @@
     variable = temp
     boundary = top
     h = 1500
-    Ta = 2000
+    Ta = 1500
   [../]
  [./bottom]
     type = HeatFluxBC
@@ -88,9 +108,31 @@
     boundary = bottom
     value = 0
   [../]
+ [./pressureleft]
+    type = HeatFluxBC
+    variable = pressure
+    boundary = left
+    value = 0
+  [../]
+  [./pressureright]
+    type = HeatFluxBC
+    variable = pressure
+    boundary = right
+    value = 0
+  [../]
+  [./pressuretop]
+     type = DirichletBC
+    variable = pressure
+    boundary = top
+    value = 100000
+  [../]
+ [./pressurebottom]
+   type =  DirichletBC
+    variable = pressure
+    boundary = bottom
+    value = 50000
+  [../]
 []
-
-
 
 
 [Executioner]

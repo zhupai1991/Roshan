@@ -30,7 +30,19 @@ Real PyrolysisSource::computeQpJacobian()
 {
 	  return( _deltaH * _rhoDot_dRho[_qp]  * _test[_i][_qp] * _phi[_j][_qp] );
 }
+Real  PyrolysisSource::computeQpOffDiagJacobian(unsigned int jvar)
+ {
 
+
+	 if ( jvar ==   _rho_num)
+	    {
+	 	  return( _deltaH * _rhoDot_dRho[_qp]  * _test[_i][_qp] * _phi[_j][_qp] );
+	    }
+	 else
+	 {
+		 return (0);
+	 }
+ }
 
 
 

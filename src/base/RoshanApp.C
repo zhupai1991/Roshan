@@ -19,6 +19,10 @@
 #include "HeatConductionMaterial.h"
 #include "PyrolysisMaterial.h"
 #include "PyrolysisSource.h"
+#include "PyrolysisGasPressure.h"
+#include "PyrolysisGasSource.h"
+#include "PyrolysisEnergeKernel.h"
+#include "PyrolysisDensityKernel.h"
 
 #include "HeatFaceKernel.h"
 
@@ -30,6 +34,7 @@
 #include "HeatRadiationBC.h"
 
 #include "CosAuxKernel.h"
+#include "RhoTimeDerivative.h"
 //#include "OutputTest.h"
 
 #include "AnalyticSolution.h"
@@ -83,6 +88,11 @@ RoshanApp::registerObjects(Factory & factory)
 	registerKernel (PyroTempTimeDerivative);
 	registerKernel (TempDiffusionKernel);
 	registerKernel (PyrolysisSource);
+	registerKernel (PyrolysisGasPressure);
+	registerKernel (PyrolysisGasSource);
+	registerKernel (PyrolysisEnergeKernel);
+	registerKernel (PyrolysisDensityKernel);
+
 
 	registerMaterial(HeatConductionMaterial);
 	registerMaterial(PyrolysisMaterial);
@@ -96,6 +106,7 @@ RoshanApp::registerObjects(Factory & factory)
 	registerBoundaryCondition(HeatRadiationBC);
 
 	registerAux(CosAuxKernel);
+	registerAux(RhoTimeDerivative);
 
 	registerFunction(AnalyticSolution);
 

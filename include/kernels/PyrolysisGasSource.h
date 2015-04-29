@@ -2,22 +2,21 @@
 
 #include "Kernel.h"
 
-class PyrolysisSource : public Kernel
+class PyrolysisGasSource : public Kernel
 {
 public:
 
-	PyrolysisSource(const std::string & name, InputParameters parameters);
+	PyrolysisGasSource(const std::string & name, InputParameters parameters);
 
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 private:
-    Real _deltaH;
     VariableValue & _rho_dt;
     VariableValue & _rhoDot_dRho;
     int _rho_num;
 };
 
 template<>
-InputParameters validParams<PyrolysisSource>();
+InputParameters validParams<PyrolysisGasSource>();
