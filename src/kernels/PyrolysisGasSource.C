@@ -21,7 +21,7 @@ Real PyrolysisGasSource::computeQpResidual()
 {
 //	std::cout << _k[_qp] <<std::endl;
   Real r(0);
-  r = _rho_dt[_qp] ;
+  r = _rho_dt[_qp]*_test[_i][_qp] ;
   return r;
 }
 
@@ -35,7 +35,7 @@ Real  PyrolysisGasSource::computeQpOffDiagJacobian(unsigned int jvar)
 
 	 if ( jvar ==   _rho_num)
 	    {
-	 	  return(  _rhoDot_dRho[_qp]  * _test[_i][_qp] * _phi[_j][_qp] );
+	 	  return(  _rhoDot_dRho[_qp] *_test[_i][_qp]*_phi[_j][_qp] );
 	    }
 	 else
 	 {

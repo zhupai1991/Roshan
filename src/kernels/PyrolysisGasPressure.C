@@ -4,52 +4,58 @@ template<>
 InputParameters validParams<PyrolysisGasPressure>()
 {
   InputParameters params = validParams<Kernel>();
-  params.addClassDescription("Test rho change");
-//  params.addRequiredCoupledVar("rho","Coupled Variable");
+  params.addClassDescription("gas pressure change with temperature");
+  params.addRequiredCoupledVar("temperature","Coupled Variable");
+  params.addRequiredCoupledVar("rhog","Coupled Variable");
   return params;
 }
 
 PyrolysisGasPressure::PyrolysisGasPressure(const std::string & name, InputParameters parameters) :
-     Kernel(name, parameters)
-//	 _rho(coupledValue("rho")),
-//	 _rho_num(coupled("rho"))
-
+     Kernel(name, parameters),
+	 _R(1),
+	 _mg(1),
+	 _rhog(coupledValue("rhog")),
+	 _rhog_num(coupled("temperature")),
+     _T(coupledValue("temperature")),
+     _T_num(coupled("temperature"))
 {
-	for (int i=0; i<3; i++)
-	{
-		for (int j = 0 ;j < 3 ; j++)
-		{
-			if (i == j)
-			{
-				_kp(i, j)=2e-9;
-			}
-			else
-			{
-				_kp(i, j)=0;
-			}
-		}
-	}
-
-	std::cout << _kp;
 }
 
 Real PyrolysisGasPressure::computeQpResidual()
 {
-//	std::cout << _k[_qp] <<std::endl;
-     Real r(0);
-	  r = _kp*_grad_u[_qp]*_grad_test[_i][_qp];
-      return r;
+      Real r(0);
+      if (_rhog[_qp]>=0)
+	  {
+    	  r=_u[_qp]*_test[_i][_qp]-_rhog[_qp]*_T[_qp]*_test[_i][_qp];
+          return r;
+	  }
+      else
+      {
+    	  r=_u[_qp]*_test[_i][_qp];
+    	  return r;
+     }
 }
 
 
 
 Real PyrolysisGasPressure::computeQpJacobian()
 {
-	  Real r(0);
-	  return (_kp * _grad_phi[ _j ][ _qp]* _grad_test[ _i][ _qp] ) ;
-	  return r;
+	  return (_phi[_j][_qp]*_test[_i][_qp] ) ;
 }
+Real  PyrolysisGasPressure::computeQpOffDiagJacobian(unsigned int jvar)
+ {
 
+
+//	 if ( jvar == _T_num)
+//	    {
+//	    return -(_phi[_j][_qp]*_test[_i][_qp]);
+//	    }
+//	 else
+//	 {
+		 return (0);
+//	 }
+
+ }
 
 
 

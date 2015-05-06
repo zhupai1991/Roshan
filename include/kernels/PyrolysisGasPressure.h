@@ -11,11 +11,14 @@ public:
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
-
+  virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 private:
-//  VariableValue & _rho;
-//  unsigned int _rho_num;
-  RealTensor _kp;
+  Real _R;
+  Real _mg;
+  VariableValue & _rhog;
+  unsigned int _rhog_num;
+  VariableValue & _T;
+  unsigned int _T_num;
 };
 
 template<>

@@ -1,12 +1,15 @@
 [Mesh]
  type = GeneratedMesh
-  dim = 2
-  xmin = -0.01
-  ymin = -0.01
-  xmax = 0.01
-  ymax = 0.01
-  nx = 20
+  dim = 3
+  xmin = 0
+  ymin = 0
+  zmin = 0
+  xmax = 0.0254
+  ymax = 0.0762
+  zmax = 0.0254
+  nx = 10
   ny = 20
+  nz = 10
   uniform_refine = 1 
 []
 
@@ -15,7 +18,6 @@
     family = LAGRANGE
     order = FIRST
   [../]
-
   [./temp]
     family = LAGRANGE
     order = FIRST  
@@ -105,22 +107,35 @@
     variable = rho
     temperature = temp
   [../]
-  [./energy]
-    type = PyrolysisEnergeKernel
+  [./temptimederivative]
+    type = PyroTempTimeDerivative
     variable = temp
     rho = rho
+  [../]
+  [./tempdiffusion]
+    type = TempDiffusionKernel
+    variable = temp
+  [../]
+  [./gasconvection]
+    type = GasConvection
+    variable = temp
+    pressure = pressure   
   [../]
   [./ Pyrolysis_GasDensity]
     type =  PyrolysisGasRhochange
     variable = rhog
     rho = rho
   [../] 
-  [./ Pyrolysis_GasPressure]
-    type =  PyrolysisGasPressure
+  [./ Darcy_GasPressure]
+    type =  NoSourcePressure
     variable = pressure
-    temperature = temp
-    rhog = rhog
-  [../] 
+  [../]
+  [./ Pyrolysis_Gassource]
+    type =  PyrolysisGasSource
+    variable = pressure
+    rho = rho
+  [../]
+  
 []
 
 [BCs]
@@ -135,31 +150,31 @@
     variable = temp
     boundary = right
     h = 0
-    Ta = 1000
+    Ta = 0
   [../]
   [./top]
     type = HeatTransferBC
     variable = temp
     boundary = top
-    h = 1500
-    Ta = 1500
+    h = 750
+    Ta = 2000
   [../]
- [./bottom]
-    type = HeatFluxBC
+  [./bottom]
+    type = DirichletBC
     variable = temp
     boundary = bottom
+    value = 300
+  [../]
+  [./front]
+    type = HeatFluxBC
+    variable = temp
+    boundary = front
     value = 0
   [../]
-[./pressureleft]
-   type = DirichletBC
-    variable =  pressure
-    boundary = left
-    value = 0
-  [../]
-  [./pressureright]
-    type = DirichletBC
-    variable =  pressure
-    boundary = right
+  [./back]
+    type = HeatFluxBC
+    variable = temp
+    boundary = back
     value = 0
   [../]
   [./pressuretop]
@@ -182,7 +197,7 @@
   solve_type = newton
   dt = 1E-02
   scheme = bdf2
-  num_steps = 20000
+  num_steps = 2000
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05

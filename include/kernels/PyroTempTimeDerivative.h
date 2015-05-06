@@ -15,6 +15,7 @@ protected:
 private:
     Real _cp;
     VariableValue & _rho;
+    VariableGradient & _grad_rho;
     unsigned int _rho_num;
 };
 

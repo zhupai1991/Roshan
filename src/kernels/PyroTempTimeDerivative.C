@@ -13,6 +13,7 @@ PyroTempTimeDerivative::PyroTempTimeDerivative(const std::string & name, InputPa
   TimeDerivative(name, parameters),
    _cp(1256),
    _rho(coupledValue("rho")),
+   _grad_rho(coupledGradient("rho")),
    _rho_num(coupled("rho"))
 {
 }

@@ -18,5 +18,6 @@ RhoTimeDerivative::RhoTimeDerivative(const std::string & name, InputParameters p
 
 Real RhoTimeDerivative::computeValue()
 {
-   return abs(_rho_dt[_qp]);
+//   return abs(_rho_dt[_qp]);
+   return _rho_dt[_qp];
 }
