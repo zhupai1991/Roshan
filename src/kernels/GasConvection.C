@@ -6,13 +6,14 @@ InputParameters validParams<GasConvection>()
 {
   InputParameters params = validParams<Kernel>();
   params.addRequiredCoupledVar("pressure", "The pressure field.");
+  params.addRequiredParam<RealTensorValue>("tensor_kp", "The Tensor of kp");
   return params;
 }
 
 GasConvection::GasConvection(const std::string & name, InputParameters parameters) :
 		Kernel(name, parameters),
-	_rhog(10),
-	_kp( 8.968e-10),
+	_rhog(1000),
+	_kp(getParam<RealTensorValue>("tensor_kp")),
 	_viscosity(1.98e-5),
 	_poro(0.3),
     _pressure_gradient(coupledGradient("pressure")),

@@ -16,7 +16,7 @@ public:
 protected:
   virtual Real computeValue();
   Real _rhog;
-  Real _kp;
+  RealTensorValue _kp;
   Real _viscosity;
   Real _poro;
   int _component;

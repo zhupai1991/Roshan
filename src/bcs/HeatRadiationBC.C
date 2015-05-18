@@ -60,6 +60,11 @@ void HeatRadiationBC::computeResidual()
 		pts.push_back(_q_point[ip]);
 	}
 	interpolate(qc, ts, pts, _t);
+	for(int ip = 0; ip < _q_point.size(); ++ip)
+	{
+	   _qc[ip] = qc[ip];
+	   _ts[ip] = ts[ip];
+	}
 
 	IntegratedBC::computeResidual();
 }
@@ -73,6 +78,12 @@ void HeatRadiationBC::computeJacobian()
 		pts.push_back(_q_point[ip]);
 	}
 	interpolate(qc, ts, pts, _t);
+
+	for(int ip = 0; ip < _q_point.size(); ++ip)
+	{
+	   _qc[ip] = qc[ip];
+	   _ts[ip] = ts[ip];
+	}
 
 	IntegratedBC::computeJacobian();
 }
@@ -125,15 +136,15 @@ void HeatRadiationBC::readqcfile()
     		{
     			store.push_back(d);
     			store[j] = d;
-    			cout<<"store["<<j<<"]="<<store[j]<<endl;
+//    			cout<<"store["<<j<<"]="<<store[j]<<endl;
     			j+=1;
     		}
     	   Point pp(store[0],store[1],store[2]);
     		_src_qc[t].push_back(store[3]);
     		_src_ts[t].push_back(store[4]);
     		_src_pts[t].push_back(pp);
-    		cout<<"_src_qc["<<t<<"]"<<"["<<i<<"]="<<_src_qc[t][i]<<endl;
-    		cout<<"_src_ts["<<t<<"]"<<"["<<i<<"]="<<_src_ts[t][i]<<endl;
+//    		cout<<"_src_qc["<<t<<"]"<<"["<<i<<"]="<<_src_qc[t][i]<<endl;
+//    		cout<<"_src_ts["<<t<<"]"<<"["<<i<<"]="<<_src_ts[t][i]<<endl;
     	}
     	_time_step.push_back(store[7]);
 	}

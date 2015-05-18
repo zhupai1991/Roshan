@@ -1,16 +1,12 @@
 [Mesh]
  type = GeneratedMesh
-  dim = 3
+  dim = 2
   xmin = 0
   ymin = 0
-  zmin = 0
-  xmax = 0.0254
-  ymax = 0.0762
-  zmax = 0.0254
-  nx = 10
-  ny = 20
-  nz = 10
-  uniform_refine = 1 
+  xmax = 0.0362
+  ymax = 0.0362
+  nx = 60
+  ny = 60
 []
 
 [Variables]
@@ -37,18 +33,18 @@
     order = FIRST
     family = LAGRANGE
   [../]
-  [./GasVelocity_x]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
-  [./GasVelocity_y]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
-  [./GasVelocity_z]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
+  #[./GasVelocity_x]
+    #order = CONSTANT
+   # family = MONOMIAL
+  #[../]
+  #[./GasVelocity_y]
+    #order = CONSTANT
+    #family = MONOMIAL
+  #[../]
+  #[./GasVelocity_z]
+   # order = CONSTANT
+   # family = MONOMIAL
+  #[../]
  
 
 [ICs]
@@ -80,25 +76,18 @@
     variable =rho_dt
     rho = rho   
   [../]
-  [./gasvelocity_x]
-    type = PyrolysisGasVelocity
-    variable = GasVelocity_x
-    component = x 
-    pressure = pressure  
-  [../]
-  [./gasvelocity_y]
-    type = PyrolysisGasVelocity
-    variable = GasVelocity_y
-    component = y
-    pressure = pressure   
-  [../]
-  [./gasvelocity_z]
-    type = PyrolysisGasVelocity
-    variable = GasVelocity_z
-    component = z 
-    pressure = pressure   
-  [../]
-
+  #[./gasvelocity_x]
+    #type = PyrolysisGasVelocity
+    #variable = GasVelocity_x
+    #component = x 
+    #pressure = pressure  
+ # [../]
+  #[./gasvelocity_y]
+   # type = PyrolysisGasVelocity
+   # variable = GasVelocity_y
+   # component = y
+   # pressure = pressure  
+  #[../]
 []
 
 [Kernels]
@@ -119,7 +108,10 @@
   [./gasconvection]
     type = GasConvection
     variable = temp
-    pressure = pressure   
+    pressure = pressure
+    tensor_kp = '0 0 0 
+                 0 8.9e-9 0
+                 0 0 0'   
   [../]
   [./ Pyrolysis_GasDensity]
     type =  PyrolysisGasRhochange
@@ -140,13 +132,14 @@
 
 [BCs]
   [./left]
-    type = HeatFluxBC
+    type = HeatTransferBC
     variable = temp
     boundary = left
-    value = 0
+    h = 750
+    Ta = 2000
   [../]
   [./right]
-     type = HeatTransferBC
+    type = HeatTransferBC
     variable = temp
     boundary = right
     h = 0
@@ -156,37 +149,38 @@
     type = HeatTransferBC
     variable = temp
     boundary = top
-    h = 750
-    Ta = 2000
+    h = 0
+    Ta = 0
   [../]
   [./bottom]
-    type = DirichletBC
+    type = HeatTransferBC
     variable = temp
     boundary = bottom
-    value = 300
-  [../]
-  [./front]
-    type = HeatFluxBC
-    variable = temp
-    boundary = front
-    value = 0
-  [../]
-  [./back]
-    type = HeatFluxBC
-    variable = temp
-    boundary = back
-    value = 0
+    h = 0
+    Ta = 0
   [../]
   [./pressuretop]
-    type = DirichletBC
+    type = HeatFluxBC
     variable =  pressure
     boundary = top
     value = 0
   [../]
  [./pressurebottom]
-    type = DirichletBC
+   type = HeatFluxBC
     variable =  pressure
     boundary = bottom
+    value = 0
+  [../]
+ [./pressureleft]
+    type = DirichletBC
+    variable =  pressure
+    boundary = left
+    value = 0
+  [../]
+ [./pressureright]
+    type = HeatFluxBC
+    variable =  pressure
+    boundary = right
     value = 0
   [../]
 []
@@ -197,7 +191,7 @@
   solve_type = newton
   dt = 1E-02
   scheme = bdf2
-  num_steps = 2000
+  num_steps = 5000
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05
