@@ -8,24 +8,28 @@ template<>
 InputParameters validParams<HeatRadiationBC>()
 {
   InputParameters params = validParams<IntegratedBC>();
-  params.addRequiredParam<Real>("sigma", " ");
-  params.addRequiredParam<Real>("epsilon", " ");
-  params.addRequiredParam<Real>("tw0", " ");
-  params.addParam<std::string>("qc_file", "qc data from file");
+  params.addRequiredCoupledVar("sigma", "sigma");
+  params.addRequiredParam<Real>("epsilon", "epsilon");
+  params.addRequiredParam<Real>("tw0", "tw0");
+  params.addParam<std::string>("flux_data", "flux data from file");
   params.addParam<Real>("power", 2, "distance power");
   params.addParam<int>("interp_pts", 8, "number of interpolate points");
+  params.addParam<std::vector<Real> >("scale",  "scale");
+  params.addParam<Real>("fluxcoff",  "fluxcoff");
 
   return params;
 }
 
 HeatRadiationBC::HeatRadiationBC(const std::string & name, InputParameters parameters) :
   IntegratedBC(name, parameters),
-  _sigma(getParam<Real>("sigma")),
+  _sigma(coupledValue("sigma")),
   _epsilon(getParam<Real>("epsilon")),
   _tw0(getParam<Real>("tw0")),
-  _qc_file(isParamValid("qc_file") ? getParam<std::string>("qc_file") : "")
+  _qc_file(isParamValid("flux_data") ? getParam<std::string>("flux_data") : ""),
+  _scale(getParam<std::vector<Real> >("scale")),
+  _fluxcoff(getParam<Real>("fluxcoff"))
 {
-	readqcfile();
+	readFile();
 
 	Real power = getParam<Real>("power");
 	int n_interp_pts = getParam<int>("interp_pts");
@@ -62,7 +66,7 @@ void HeatRadiationBC::computeResidual()
 	interpolate(qc, ts, pts, _t);
 	for(int ip = 0; ip < _q_point.size(); ++ip)
 	{
-	   _qc[ip] = qc[ip];
+	   _qc[ip] = qc[ip]*_fluxcoff;
 	   _ts[ip] = ts[ip];
 	}
 
@@ -81,7 +85,7 @@ void HeatRadiationBC::computeJacobian()
 
 	for(int ip = 0; ip < _q_point.size(); ++ip)
 	{
-	   _qc[ip] = qc[ip];
+	   _qc[ip] = qc[ip]*_fluxcoff;
 	   _ts[ip] = ts[ip];
 	}
 
@@ -92,17 +96,19 @@ Real HeatRadiationBC::computeQpResidual()
 {
   Real tw = _u[_qp];
   Real tw4 = Utility::pow<4>(tw);
-  return _test[_i][_qp]*(_ts[_qp] - tw)/(_ts[_qp] - _tw0)*_qc[_qp] - _epsilon*_sigma*tw4;
+  Real flux = (_ts[_qp] - tw)/(_ts[_qp] - _tw0)*_qc[_qp] - _epsilon*_sigma[_qp]*tw4;
+  return -_test[_i][_qp]*flux;
 }
 
 Real HeatRadiationBC::computeQpJacobian()
 {
   Real tw = _u[_qp];
   Real tw3 = Utility::pow<3>(tw);
-  return _test[_i][_qp]*_phi[_j][_qp]*(-_qc[_qp]/(_ts[_qp] - _tw0) - 4*_epsilon*_sigma*tw3);
+  Real jacobi = -_qc[_qp]/(_ts[_qp] - _tw0) - 4*_epsilon*_sigma[_qp]*tw3;
+  return -_test[_i][_qp]*_phi[_j][_qp]*jacobi;
 }
 
-void HeatRadiationBC::readqcfile()
+void HeatRadiationBC::readFile()
 {
 	using namespace std;
 	ifstream qc_read(_qc_file.c_str());
@@ -139,7 +145,8 @@ void HeatRadiationBC::readqcfile()
 //    			cout<<"store["<<j<<"]="<<store[j]<<endl;
     			j+=1;
     		}
-    	   Point pp(store[0],store[1],store[2]);
+
+    	    Point pp(store[0]*_scale[0],store[1]*_scale[1],store[2]*_scale[2]);
     		_src_qc[t].push_back(store[3]);
     		_src_ts[t].push_back(store[4]);
     		_src_pts[t].push_back(pp);

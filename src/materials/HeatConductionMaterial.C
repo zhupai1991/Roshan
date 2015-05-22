@@ -11,8 +11,9 @@ InputParameters validParams<HeatConductionMaterial>()
   params.addRequiredCoupledVar("temperature", "Coupled Temperature");
   params.addParam<std::vector<Real> >("t_list", "The vector of temperature values for building the piecewise function");
   params.addParam<std::vector<Real> >("roe_list", "The vector of rho values for building the piecewise function");
-params.addParam<std::vector<Real> >("k_list", "The vector of thermal conductivity values for building the piecewise function");
+  params.addParam<std::vector<Real> >("k_list", "The vector of thermal conductivity values for building the piecewise function");
   params.addParam<std::vector<Real> >("cp_list", "The vector of specific heat values for building the piecewise function");
+  params.addParam<Real>("sigma", "sigma");
   params.addParam<std::string>("property_file","The name of the property file");
   return params;
 }
@@ -26,7 +27,8 @@ HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputPa
     _cp(declareProperty<Real>("specific_heat")),
     _cp_dT( declareProperty<Real>("specific_heat_dT")),
     _rho(declareProperty<Real>("density")),
-    _rho_dT( declareProperty<Real>("density_dT"))
+    _rho_dT( declareProperty<Real>("density_dT")),
+	_sigma( declareProperty<Real>("sigma"))
 
 {
 		if (_property_file == "")
@@ -35,6 +37,7 @@ HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputPa
 			_T_list = getParam<std::vector<Real> >("t_list");
 			_cp_list= getParam<std::vector<Real> >("cp_list");
 			_k_list = getParam<std::vector<Real> > ("k_list");
+			_sigmanum = getParam<Real> ("sigma");
 //		_func_k_T=LinearInterpolation(getParam<std::vector<Real> >("t_list"), getParam<std::vector<Real> >("k_list"));
 //		_func_cp_T=LinearInterpolation(getParam<std::vector<Real> >("t_list"), getParam<std::vector<Real> >("cp_list"));
 		}
@@ -57,8 +60,15 @@ void HeatConductionMaterial::readFile()
 
 		    string line;
 			getline(read_file, line);
-			istringstream(line) >> _tpoint;
-
+			vector<Real> num;
+			istringstream iss(line);
+			Real f;
+			while(iss >> f)
+			{
+			 num.push_back(f);
+            }
+			_tpoint = num[0];
+			_sigmanum = num[1];
 			for(int i = 0; i < _tpoint; ++i)
 			{
 				int j=0;
@@ -96,6 +106,7 @@ void HeatConductionMaterial::computeProperties()
     _cp_dT[qp] = (_func_cp_T.sample(_temperature[qp]+epsi) - _func_cp_T.sample(_temperature[qp]-epsi))/2/epsi ;
     _rho[qp] = _func_roe_T.sample(_temperature[qp]);
     _rho_dT[qp] = (_func_roe_T.sample(_temperature[qp]+epsi) - _func_roe_T.sample(_temperature[qp]-epsi))/2/epsi ;
+    _sigma[qp]= _sigmanum ;
   }
 }
 

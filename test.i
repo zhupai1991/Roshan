@@ -21,6 +21,19 @@
   [../]
 []
 
+[AuxVariables]
+  [./sigma]
+    order = CONSTANT
+    family = MONOMIAL
+  [../]
+[]
+
+[AuxKernels]
+  [./aukernel_for_sigma]
+    type = GetSigma
+    variable = sigma
+  []
+[]
 [Kernels]
   [./temporal]
     type = HeatConductionTimeDerivative
@@ -34,21 +47,23 @@
 
 [BCs]
   [./left]
-    type = HeatRadiationBC
+    type = HeatFluxBC
     variable = temp
     boundary = left
-    sigma = 1E-06
-    epsilon = 1E-06
-    ts = 400
-    tw0 = 300
+    value = 0
     qc = 0.01
-    data_file = qc.dat
+    #data_file = qc.dat
   [../]
   [./right]
-    type = DirichletBC
+    type = HeatRadiationBC
     variable = temp
     boundary = right
-    value = 2000
+    epsilon = 1e-6
+    tw0 = 300
+    scale = '1 1 1'
+    sigma = sigma
+    #sigma = 0.1
+    qc_file = qc.dat
   [../]
   [./top]
     type = DirichletBC
@@ -70,9 +85,10 @@
     temperature = temp
     block = 0
     t_list = '0 0.5 1'
+    roe_list = '20 20 20'
     k_list = '1 1 1'
     cp_list = '1 1 1'
-    property_file = 
+    property_file = 'k(T1).data'
   [../]
 []
 

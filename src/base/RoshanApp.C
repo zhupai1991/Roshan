@@ -27,6 +27,7 @@
 #include "PyrolysisGasVelocity.h"
 #include "NoSourcePressure.h"
 #include "GasConvection.h"
+#include "GetSigma.h"
 
 #include "HeatFaceKernel.h"
 
@@ -117,6 +118,7 @@ RoshanApp::registerObjects(Factory & factory)
 	registerAux(CosAuxKernel);
 	registerAux(RhoTimeDerivative);
 	registerAux(Gaspressure);
+	registerAux(GetSigma);
 
 	registerFunction(AnalyticSolution);
 

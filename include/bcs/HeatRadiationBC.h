@@ -17,9 +17,9 @@ protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
   void interpolate(std::vector<Real> &qc, std::vector<Real>  &ts, std::vector<Point> &pts, Real t);
+  void readFile();
 
-
-  Real _sigma;
+  VariableValue &_sigma;
   Real _epsilon;
   Real _tw0;
   Real _ts[20];
@@ -27,7 +27,7 @@ protected:
 
   MooseSharedPointer<InverseDistanceInterpolation<LIBMESH_DIM> > _idi;
   string _data_file;
- string _qc_file;
+  string _qc_file;
   vector<vector<Real> > _src_qc;
   vector<vector<Real> > _src_ts;
   vector<vector<Point> >_src_pts;
@@ -38,8 +38,8 @@ protected:
   vector<InverseDistanceInterpolation<LIBMESH_DIM> *  > _idis;
   int _num_pts;
   int _num_time_step;
-private:
-  void readqcfile();
+  std::vector<Real> _scale;
+  Real _fluxcoff;
 };
 
 template<>
