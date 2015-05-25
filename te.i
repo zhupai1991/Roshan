@@ -119,7 +119,7 @@
 
 [Executioner]
   type = Transient
-  solve_type = newton
+  solve_type = PJFNK
   dt = 1E-02
   num_steps = 1000
 

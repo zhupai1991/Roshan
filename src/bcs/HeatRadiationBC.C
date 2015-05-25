@@ -147,8 +147,8 @@ void HeatRadiationBC::readFile()
     		}
 
     	    Point pp(store[0]*_scale[0],store[1]*_scale[1],store[2]*_scale[2]);
-    		_src_qc[t].push_back(store[3]);
-    		_src_ts[t].push_back(store[4]);
+    		_src_ts[t].push_back(store[3]);
+    		_src_qc[t].push_back(store[4]);
     		_src_pts[t].push_back(pp);
 //    		cout<<"_src_qc["<<t<<"]"<<"["<<i<<"]="<<_src_qc[t][i]<<endl;
 //    		cout<<"_src_ts["<<t<<"]"<<"["<<i<<"]="<<_src_ts[t][i]<<endl;

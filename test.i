@@ -63,7 +63,8 @@
     scale = '1 1 1'
     sigma = sigma
     #sigma = 0.1
-    qc_file = qc.dat
+    flux_data = qc.dat
+    fluxcoff = 1
   [../]
   [./top]
     type = DirichletBC
