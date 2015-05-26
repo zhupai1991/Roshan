@@ -17,6 +17,7 @@
 #include "HeatConductionKernel.h"
 #include "DensityKernel.h"
 #include "HeatConductionMaterial.h"
+#include "HeatFluxMaterial.h"
 #include "PyrolysisMaterial.h"
 #include "PyrolysisSource.h"
 #include "PyrolysisGasPressure.h"
@@ -28,6 +29,7 @@
 #include "NoSourcePressure.h"
 #include "GasConvection.h"
 #include "GetSigma.h"
+#include "HeatFluxAuxKernel.h"
 
 #include "HeatFaceKernel.h"
 
@@ -105,6 +107,7 @@ RoshanApp::registerObjects(Factory & factory)
 
 
 	registerMaterial(HeatConductionMaterial);
+	registerMaterial(HeatFluxMaterial);
 	registerMaterial(PyrolysisMaterial);
 
 	registerDGKernel(HeatFaceKernel);
@@ -119,6 +122,7 @@ RoshanApp::registerObjects(Factory & factory)
 	registerAux(RhoTimeDerivative);
 	registerAux(Gaspressure);
 	registerAux(GetSigma);
+	registerAux(HeatFluxAuxKernel);
 
 	registerFunction(AnalyticSolution);
 

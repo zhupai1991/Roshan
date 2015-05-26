@@ -19,6 +19,8 @@ protected:
   void interpolate(std::vector<Real> &qc, std::vector<Real>  &ts, std::vector<Point> &pts, Real t);
   void readFile();
 
+  MaterialProperty<Real> & _flux;
+  MaterialProperty<Real> & _flux_jacobi;
   VariableValue &_sigma;
   Real _epsilon;
   Real _tw0;

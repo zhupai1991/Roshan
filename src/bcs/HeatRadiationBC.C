@@ -22,6 +22,8 @@ InputParameters validParams<HeatRadiationBC>()
 
 HeatRadiationBC::HeatRadiationBC(const std::string & name, InputParameters parameters) :
   IntegratedBC(name, parameters),
+  _flux(getMaterialProperty<Real>("heat_flux")),
+  _flux_jacobi(getMaterialProperty<Real>("heat_flux_jacobi")),
   _sigma(coupledValue("sigma")),
   _epsilon(getParam<Real>("epsilon")),
   _tw0(getParam<Real>("tw0")),
@@ -94,18 +96,18 @@ void HeatRadiationBC::computeJacobian()
 
 Real HeatRadiationBC::computeQpResidual()
 {
-  Real tw = _u[_qp];
-  Real tw4 = Utility::pow<4>(tw);
-  Real flux = (_ts[_qp] - tw)/(_ts[_qp] - _tw0)*_qc[_qp] - _epsilon*_sigma[_qp]*tw4;
-//  std :: cout<<_sigma[_qp]<<  std :: endl;
+//  Real tw = _u[_qp];
+//  Real tw4 = Utility::pow<4>(tw);
+  Real flux = _flux[_qp];
   return -_test[_i][_qp]*flux;
 }
 
 Real HeatRadiationBC::computeQpJacobian()
 {
-  Real tw = _u[_qp];
-  Real tw3 = Utility::pow<3>(tw);
-  Real jacobi = -_qc[_qp]/(_ts[_qp] - _tw0) - 4*_epsilon*_sigma[_qp]*tw3;
+//  Real tw = _u[_qp];
+//  Real tw3 = Utility::pow<3>(tw);
+//  Real jacobi = -_qc[_qp]/(_ts[_qp] - _tw0) - 4*_epsilon*_sigma[_qp]*tw3;
+  Real jacobi = _flux_jacobi[_qp];
   return -_test[_i][_qp]*_phi[_j][_qp]*jacobi;
 }
 

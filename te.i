@@ -14,6 +14,10 @@
     order = CONSTANT
     family = MONOMIAL
   [../]
+  [./heat_flux]
+    order = CONSTANT
+    family = MONOMIAL
+  [../]
 []
 
 
@@ -21,7 +25,13 @@
   [./aukernel_for_sigma]
     type = GetSigma
     variable = sigma
-  []
+  [../]
+  [./heat_flux]
+    type = HeatFluxAuxKernel
+    variable = heat_flux
+    boundary = left
+  [../]
+
 []
 
 [ICs]
@@ -119,6 +129,19 @@
     cp_list = '1 1'
     property_file = k(T4).data
     
+  [../]
+
+  [./heat_flux]
+    type = HeatFluxMaterial
+    temperature = temprature
+    sigma = sigma
+    boundary = left
+    epsilon = 1e-8
+    tw0 = 300
+    scale = '1 1 1'
+    sigma = sigma
+    flux_data = qc.dat
+    fluxcoff = 1 
   [../]
 []
 
