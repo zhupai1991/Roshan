@@ -139,7 +139,6 @@
     epsilon = 1e-8
     tw0 = 300
     scale = '1 1 1'
-    sigma = sigma
     flux_data = qc.dat
     fluxcoff = 1 
   [../]
