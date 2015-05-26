@@ -97,6 +97,7 @@ Real HeatRadiationBC::computeQpResidual()
   Real tw = _u[_qp];
   Real tw4 = Utility::pow<4>(tw);
   Real flux = (_ts[_qp] - tw)/(_ts[_qp] - _tw0)*_qc[_qp] - _epsilon*_sigma[_qp]*tw4;
+//  std :: cout<<_sigma[_qp]<<  std :: endl;
   return -_test[_i][_qp]*flux;
 }
 

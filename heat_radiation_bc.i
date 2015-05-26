@@ -1,8 +1,5 @@
 [Mesh]
-  type = GeneratedMesh
-  dim = 2
-  nx = 10
-  ny = 10
+  file = four_blocks.exo
 []
 
 [Variables]

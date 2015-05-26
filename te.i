@@ -1,7 +1,5 @@
 [Mesh]
-  file = test1.exo
-  uniform_refine = 1
-  second_order = true
+  file = four_blocks.exo
 []
 
 [Variables]
@@ -12,16 +10,17 @@
 []
 
 [AuxVariables]
-  [./a]
+  [./sigma]
+    order = CONSTANT
+    family = MONOMIAL
   [../]
 []
 
+
 [AuxKernels]
-  [./aukernel_for_a]
-    type = CosAuxKernel
-    variable = a
-    T = temprature
-    coef = 1
+  [./aukernel_for_sigma]
+    type = GetSigma
+    variable = sigma
   []
 []
 
@@ -46,10 +45,16 @@
 
 [BCs]
   [./llleft]
-    type = IsoThermalBC
+    type = HeatRadiationBC
     variable = temprature
     boundary = left
-    value = 300
+    epsilon = 1e-8
+    tw0 = 300
+    scale = '1 1 1'
+    sigma = sigma
+    flux_data = qc.dat
+    fluxcoff = 1
+
   [../]
   [./right]
     type = IsoThermalBC
@@ -61,13 +66,13 @@
     type = HeatFluxBC
     variable = temprature
     boundary = top
-    value = 1e6
+    value = 0
   [../]
  [./bottom]
     type = HeatFluxBC
     variable = temprature
     boundary = bottom
-    value = -1e4
+    value = 0
   [../]
 []
 
@@ -120,7 +125,7 @@
 [Executioner]
   type = Transient
   solve_type = PJFNK
-  dt = 1E-02
+  dt = 1
   num_steps = 1000
 
   l_tol = 1e-04
