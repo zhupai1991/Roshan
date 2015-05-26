@@ -2,6 +2,10 @@
   file = four_blocks.exo
 []
 
+[Problem]
+  type = YourProblem
+[]
+
 [Variables]
   [./temprature]
     family = LAGRANGE

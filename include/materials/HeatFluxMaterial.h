@@ -33,15 +33,15 @@ private:
   string _flux_file;
   vector<vector<Real> > _src_qc;
   vector<vector<Real> > _src_ts;
-   vector<vector<Point> >_src_pts;
-   vector<Real> _time_step;
-   vector<string> _field_name;
+  vector<vector<Point> >_src_pts;
+  vector<Real> _time_step;
+  vector<string> _field_name;
 
-   vector<InverseDistanceInterpolation<LIBMESH_DIM> *  > _idis;
-   int _num_pts;
-   int _num_time_step;
-   std::vector<Real> _scale;
-   Real _fluxcoff;
+  vector<InverseDistanceInterpolation<LIBMESH_DIM> *  > _idis;
+  int _num_pts;
+  int _num_time_step;
+  std::vector<Real> _scale;
+  Real _fluxcoff;
 };
 
 template<>
