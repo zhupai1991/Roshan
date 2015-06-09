@@ -84,8 +84,9 @@ void HeatConductionMaterial::readFile()
 				}
                 _T_list.push_back(data[0]);
                 _roe_list.push_back(data[1]);
-                _k_list.push_back(data[2]);
-                _cp_list.push_back(data[3]);
+                _cp_list.push_back(data[2]);
+                _k_list.push_back(data[3]);
+
 //				cout<<"T["<<i<<"]= "<<_T_list[i]<<endl;
 //				cout<<"roe["<<i<<"]= "<<_roe_list[i]<<endl;
 //				cout<<"k["<<i<<"]= "<<_k_list[i]<<endl;
