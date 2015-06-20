@@ -14,10 +14,10 @@ protected:
   virtual Real computeQpJacobian();
 
 private:
-  MaterialProperty<Real> & _cp;
-  MaterialProperty<Real> & _cp_dT;
-  MaterialProperty<Real> & _rho;
-  MaterialProperty<Real> & _rho_dT;
+  const MaterialProperty<Real> & _cp;
+  const MaterialProperty<Real> & _cp_dT;
+  const MaterialProperty<Real> & _rho;
+  const MaterialProperty<Real> & _rho_dT;
 };
 
 template<>

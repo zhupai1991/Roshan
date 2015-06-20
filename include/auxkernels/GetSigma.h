@@ -10,7 +10,7 @@ public:
 protected:
   virtual Real computeValue();
 
-  MaterialProperty<Real> & _sigma;
+  const MaterialProperty<Real> & _sigma;
 };
 
 template<>

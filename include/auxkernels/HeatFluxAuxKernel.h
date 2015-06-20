@@ -10,7 +10,7 @@ public:
 protected:
   virtual Real computeValue();
 
-  MaterialProperty<Real> & _flux;
+  const MaterialProperty<Real> & _flux;
 };
 
 template<>

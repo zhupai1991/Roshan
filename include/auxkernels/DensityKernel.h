@@ -14,8 +14,8 @@ protected:
 //  Real _ER;
 //  Real _nn;
 //  Real _rhov;
-  MaterialProperty<Real> & _rhov;
-  MaterialProperty<Real> & _rhoc;
+  const MaterialProperty<Real> & _rhov;
+  const MaterialProperty<Real> & _rhoc;
 //  Real _rhoc;
 //  Real _pyT;
 //  Real _charT;
