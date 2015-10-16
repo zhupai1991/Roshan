@@ -7,9 +7,9 @@
   xmax = 0.05
   ymax = 0.05
   zmax = 0.05
-  nx = 100
-  ny = 100
-  nz = 100
+  nx = 10
+  ny = 10
+  nz = 10
 
 [Variables]
   [./temp]
@@ -87,6 +87,7 @@
     roe_list = '4000 4000'
     k_list =  '1 1'
     cp_list = '500 500'
+    sigma = 1
   [../]
 []
 
