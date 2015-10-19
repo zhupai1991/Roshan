@@ -20,6 +20,7 @@
     absorptivity=1.0
     diffuse_reflectivity=0.5
     mirrors_reflectivity=0.5
+    temperature = u
   [../]
 []
 
