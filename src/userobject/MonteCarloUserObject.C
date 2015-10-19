@@ -91,6 +91,7 @@ void MonteCarloUserObject::initialSetup()
 	       }
 	     }
 //		cout << this << endl;
+	    computeRD();
 }
 
 void MonteCarloUserObject::initialize()
@@ -138,61 +139,41 @@ void MonteCarloUserObject::initialize()
 //	mooseError("d");
 }
 
-void MonteCarloUserObject::execute()
+void MonteCarloUserObject::computeRD()
 {
-	Real RD[_all_element.size()]={0};
-
-	SideElement current_side_element(_current_side_elem,  -_normals[0], _absorptivity, _diffuse_reflectivity, _mirrors_reflectivity);
-	SideElement * cse = &current_side_element;
-//	cout << "current line:" << endl;
-//	RayLine ray_line = current_side_element.SendRay();
-//	cout << ray_line;
-//
-//	Point p;
-//
-//	int jjj=Which_SideelementIntersectedByLine(ray_line, cse, _all_element, p);
-//	int jjj=Find_j_of_RDij(cse, _all_element);
-//	cout << "jjj:" << jjj << endl;
-//	cout << "point:" << _all_element[jjj]->_elem->centroid() << endl;
-
-	for (int i=0;i<_particle_count;i++)
+	for(int i  = 0; i < _all_element.size(); i++)
 	{
-		int j_of_RDij=-1;
 
-		j_of_RDij=Find_j_of_RDij(cse, _all_element);
+		Real RD[_all_element.size()]={0};
 
-		if (j_of_RDij == -1)
-			continue;
+		//	SideElement current_side_element(_current_side_elem,  -_normals[0], _absorptivity, _diffuse_reflectivity, _mirrors_reflectivity);
+		SideElement * cse = _all_element[i];
 
-		else
-			RD[j_of_RDij]=RD[j_of_RDij]+1.0;
+		for (int j=0;j<_particle_count;j++)
+		{
+			int j_of_RDij=-1;
+
+			j_of_RDij=Find_j_of_RDij(cse, _all_element);
+
+			if (j_of_RDij == -1)
+				continue;
+
+			else
+				RD[j_of_RDij]=RD[j_of_RDij]+1.0;
+		}
+
+		cout << endl << "单元计算结果：" << endl;
+		cout << "当前单元中心点：" << _all_element[i]->_elem->centroid() <<endl;
+
+		for (int i=0;i<_all_element.size();i++)
+		{
+			RD[i]=RD[i]/_particle_count;
+			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << RD[i] << endl;
+		}
+//		mooseError("产生随机位置时不支持的网格形状：");
 	}
-
-	cout << endl << "单元计算结果：" << endl;
-	cout << "当前单元中心点：" << _current_side_elem->centroid() <<endl;
-	for (int i=0;i<_all_element.size();i++)
-	{
-		RD[i]=RD[i]/_particle_count;
-		cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << RD[i] << endl;
-	}
-//	mooseError("产生随机位置时不支持的网格形状：");
-//	for (int i=0 ;i<1 ; i++)
-//	{
-//		int jjjjjjj=Find_j_of_RDij(cse, _all_element);
-//		cout << "jjjjjjj:" << jjjjjjj << endl;
-//		cout << "point:" << _all_element[jjjjjjj]->_elem->centroid() << endl;
-//	}
-//
-//	for(int i  = 0; i < _all_element.size(); ++i)
-//	{
-//		if(ray_line.sideIntersectedByLine(_all_element[i]->_elem, p))
-//		{
-//			cout << ray_line ;
-//			cout << p << endl;
-//		}
-//	}
-
 }
+
 
 
 int MonteCarloUserObject::Which_SideelementIntersectedByLine(RayLine& ray, SideElement * sideelement_i, vector<SideElement*> sideelement_vec, Point & point)

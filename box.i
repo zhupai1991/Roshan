@@ -11,9 +11,9 @@
   [../]
 []
 
-[UserObjects]
-  [./montecarlo]
-    type = MonteCarloUserObject
+[Materials]
+  [./montecarlo_material]
+    type = MonteCarloRadiationMaterial
     boundary = '0 1 2 3 4 5'
     max_reflect_count = 10
     particle_count=10000
@@ -21,7 +21,6 @@
     diffuse_reflectivity=0.5
     mirrors_reflectivity=0.5
   [../]
-
 []
 
 [Kernels]

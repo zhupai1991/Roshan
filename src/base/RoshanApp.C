@@ -31,7 +31,10 @@
 #include "GasConvection.h"
 #include "GetSigma.h"
 #include "HeatFluxAuxKernel.h"
+
+
 #include "MonteCarloUserObject.h"
+#include "MonteCarloRadiationMaterial.h"
 
 #include "HeatFaceKernel.h"
 
@@ -92,6 +95,9 @@ RoshanApp::registerObjects(Factory & factory)
 	registerInitialCondition(Strange);
 
 	registerUserObject(MonteCarloUserObject);
+	registerMaterial(MonteCarloRadiationMaterial);
+
+
 	registerKernel(HeatConductionTimeDerivative);
 	registerKernel(HeatConductionKernel);
 //	registerKernel(DensityKernel);

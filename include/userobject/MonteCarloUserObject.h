@@ -23,9 +23,10 @@ public:
 
 protected :
 	virtual void initialSetup();
+	void computeRD();
 	virtual void initialize();
 	virtual void finalize(){};
-	virtual void execute();
+	virtual void execute(){};
 	virtual void threadJoin(const UserObject & uo){};
 
 	vector<SideElement*> _all_element;
