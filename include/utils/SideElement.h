@@ -23,7 +23,7 @@ public:
 //	int MaxReflectCount;
 	const Elem * _elem;
 
-	map<SideElement*, Real> _rd;
+	map<SideElement*, Real> _RD;
 
 protected:
 //	const Elem * _elem;

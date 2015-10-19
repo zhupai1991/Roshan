@@ -9,25 +9,26 @@ using std::vector;
 
 class RayLine;
 
-class MonteCarloUserObject :
+class ComputeTemperatureBar :
 public SideUserObject,
 public RandomInterface
 {
 
 public:
-	MonteCarloUserObject(const InputParameters & parameters);
-	MonteCarloUserObject(const std::string & name, InputParameters parameters);
-
+	ComputeTemperatureBar(const InputParameters & parameters);
+	ComputeTemperatureBar(const std::string & name, InputParameters parameters);
 	int Which_SideelementIntersectedByLine(RayLine& ray, SideElement * sideelement_i, vector<SideElement*> sideelement_vec, Point & point);
 	int Find_j_of_RDij(SideElement * sideelement_i, vector<SideElement*> sideelement_vec);
 
 protected :
 	virtual void initialSetup();
-	void computeRD();
-	virtual void initialize();
-	virtual void finalize(){};
-	virtual void execute(){};
+	virtual void initialize(){};
+	virtual void finalize();
+	virtual void execute();
 	virtual void threadJoin(const UserObject & uo){};
+
+	virtual void computeQpProperties();
+	void computeRD();
 
 	vector<SideElement*> _all_element;
 
@@ -37,7 +38,10 @@ protected :
 	Real _diffuse_reflectivity;
 	Real _mirrors_reflectivity;
 
+	VariableValue &_temperature;
+//	map<SideElement*, Real> temperature_bar;
+	vector<Real> temperature_bar;
 };
 
 template<>
-InputParameters validParams<MonteCarloUserObject>();
+InputParameters validParams<ComputeTemperatureBar>();

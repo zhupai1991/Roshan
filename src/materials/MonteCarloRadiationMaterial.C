@@ -7,6 +7,8 @@
 #include "libmesh/quadrature_gauss.h"
 #include "libmesh/plane.h"
 
+#include "ComputeTemperatureBar.h"
+
 #include "RayLine.h"
 #include "MooseRandom.h"
 
@@ -76,13 +78,45 @@ void MonteCarloRadiationMaterial::initialSetup()
 			const std::vector<Point> normals = _fe_face->get_normals();
 
 			_all_element.push_back(new SideElement(elem_side, -normals[0], _absorptivity, _diffuse_reflectivity, _mirrors_reflectivity));
-
 		}
 	}
-			cout << this << endl;
+
 	computeRD();
 	std::cout << "MonteCarloRadiationMaterial::initialSetup"  << std::endl;
 }
+
+//void MonteCarloRadiationMaterial::computeRD()
+//{
+//	for(int i  = 0; i < _all_element.size(); i++)
+//	{
+//		Real RD[_all_element.size()]={0};
+//
+//		SideElement * cse = _all_element[i];
+//
+//		for (int j=0;j<_particle_count;j++)
+//		{
+//			int j_of_RDij=-1;
+//
+//			j_of_RDij=Find_j_of_RDij(cse, _all_element);
+//
+//			if (j_of_RDij == -1)
+//				continue;
+//
+//			else
+//				RD[j_of_RDij]=RD[j_of_RDij]+1.0;
+//		}
+//
+//		cout << endl << "单元计算结果：" << endl;
+//		cout << "当前单元中心点：" << _all_element[i]->_elem->centroid() <<endl;
+//
+//		for (int i=0;i<_all_element.size();i++)
+//		{
+//			RD[i]=RD[i]/_particle_count;
+//			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << RD[i] << endl;
+//		}
+////		mooseError("产生随机位置时不支持的网格形状：");
+//	}
+//}
 
 void MonteCarloRadiationMaterial::computeRD()
 {
@@ -120,12 +154,13 @@ void MonteCarloRadiationMaterial::computeRD()
 void MonteCarloRadiationMaterial::computeQpProperties()
 {
 	std::cout << "tem"  << std::endl;
+
 	std::cout << _temperature[_qp]  << std::endl;
 }
 
 void MonteCarloRadiationMaterial::computeProperties()
 {
-	std::cout << "tem"  << std::endl;
+//	std::cout << "tem"  << std::endl;
 }
 
 int MonteCarloRadiationMaterial::Which_SideelementIntersectedByLine(RayLine& ray, SideElement * sideelement_i, vector<SideElement*> sideelement_vec, Point & point)

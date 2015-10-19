@@ -1,8 +1,9 @@
 #include "RoshanApp.h"
 
-#include "../../include/kernels/PyroRhoChangeKernel.h"
-#include "../../include/kernels/PyroTempTimeDerivative.h"
-#include "../../include/kernels/TempDiffusionKernel.h"
+#include "PyroRhoChangeKernel.h"
+#include "PyroTempTimeDerivative.h"
+#include "TempDiffusionKernel.h"
+#include "ComputeTemperatureBar.h"
 #include "RoshanRevision.h"
 
 #include "Moose.h"
@@ -33,7 +34,6 @@
 #include "HeatFluxAuxKernel.h"
 
 
-#include "MonteCarloUserObject.h"
 #include "MonteCarloRadiationMaterial.h"
 
 #include "HeatFaceKernel.h"
@@ -94,7 +94,7 @@ RoshanApp::registerObjects(Factory & factory)
 	registerInitialCondition(TestIC);
 	registerInitialCondition(Strange);
 
-	registerUserObject(MonteCarloUserObject);
+	registerUserObject(ComputeTemperatureBar);
 	registerMaterial(MonteCarloRadiationMaterial);
 
 

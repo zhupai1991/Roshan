@@ -11,10 +11,10 @@
   [../]
 []
 
-[Materials]
+[UserObjects]
   [./montecarlo_material]
-    type = MonteCarloRadiationMaterial
-    boundary = '2'
+    type = ComputeTemperatureBar
+    boundary = '0 1 2 3 4 5'
     max_reflect_count = 10
     particle_count=10000
     absorptivity=1.0
@@ -35,14 +35,14 @@
   [./left]
     type = DirichletBC
     variable = u
-    boundary = left
-    value = 0
+    boundary = 0
+    value = 300
   [../]
   [./right]
     type = DirichletBC
     variable = u
     boundary = 1
-    value = 1
+    value = 0
   [../]
   [./bottom]
     type = HeatFluxBC
