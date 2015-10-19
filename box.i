@@ -14,7 +14,7 @@
 [Materials]
   [./montecarlo_material]
     type = MonteCarloRadiationMaterial
-    boundary = '0 1 2 3 4 5'
+    boundary = '2'
     max_reflect_count = 10
     particle_count=10000
     absorptivity=1.0
@@ -41,7 +41,13 @@
   [./right]
     type = DirichletBC
     variable = u
-    boundary = right
+    boundary = 1
+    value = 1
+  [../]
+  [./bottom]
+    type = HeatFluxBC
+    variable = u
+    boundary = 2
     value = 1
   [../]
 []

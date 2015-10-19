@@ -20,7 +20,7 @@ public:
 	int Find_j_of_RDij(SideElement * sideelement_i, vector<SideElement*> sideelement_vec);
 
 protected:
-//  virtual void initialSetup();
+  virtual void initialSetup();
   virtual void computeQpProperties();
   virtual void computeProperties();
   void computeRD();

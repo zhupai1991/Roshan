@@ -38,51 +38,51 @@ MonteCarloRadiationMaterial::MonteCarloRadiationMaterial(const std::string & nam
 {
 }
 
-//void MonteCarloRadiationMaterial::initialSetup()
-//{
-//	vector<BoundaryName> boundary = getParam<std::vector<BoundaryName> >("boundary");
-//	std::set<BoundaryID> boundary_ids;
-//	for(vector<BoundaryName>::iterator it = boundary.begin(); it != boundary.end(); ++it)
-//	{
-//		BoundaryID id = _mesh.getBoundaryID(*it);
-//		boundary_ids.insert(id);
-//		//    	std::cout << id <<endl;
-//	}
-//
-//	MeshBase & mesh = _mesh.getMesh();
-//	const BoundaryInfo &bnd_info = mesh.get_boundary_info();
-//	MeshBase::const_element_iterator   el  = mesh.active_elements_begin();
-//	const MeshBase::const_element_iterator end_el = mesh.active_elements_end();
-//	for ( ; el != end_el ; ++el)
-//	{
-//		const Elem *elem = *el;
-//
-//		for (unsigned int side=0; side < elem->n_sides(); ++side)
-//		{
-//			if (elem->neighbor(side))
-//				continue;
-//
-//			Elem *elem_side = elem->build_side(side).release();
-//			int bnd_id = bnd_info.boundary_id(elem, side);
-//			if(find(boundary_ids.begin(), boundary_ids.end(), bnd_id) == boundary_ids.end())
-//				continue;
-//
-//			unsigned int dim = _mesh.dimension();
-//			FEType fe_type(Utility::string_to_enum<Order>("CONSTANT"), Utility::string_to_enum<FEFamily>("MONOMIAL"));
-//			FEBase * _fe_face = (FEBase::build(dim, fe_type)).release();
-//			QGauss * _qface = new QGauss(dim-1, FIRST);
-//			_fe_face->attach_quadrature_rule(_qface);
-//			_fe_face->reinit(elem, side);
-//			const std::vector<Point> normals = _fe_face->get_normals();
-//
-//			_all_element.push_back(new SideElement(elem_side, -normals[0], _absorptivity, _diffuse_reflectivity, _mirrors_reflectivity));
-//
-//		}
-//	}
-	//		cout << this << endl;
-//	computeRD();
-//	std::cout << "MonteCarloRadiationMaterial::initialSetup"  << std::endl;
-//}
+void MonteCarloRadiationMaterial::initialSetup()
+{
+	vector<BoundaryName> boundary = getParam<std::vector<BoundaryName> >("boundary");
+	std::set<BoundaryID> boundary_ids;
+	for(vector<BoundaryName>::iterator it = boundary.begin(); it != boundary.end(); ++it)
+	{
+		BoundaryID id = _mesh.getBoundaryID(*it);
+		boundary_ids.insert(id);
+		//    	std::cout << id <<endl;
+	}
+
+	MeshBase & mesh = _mesh.getMesh();
+	const BoundaryInfo &bnd_info = mesh.get_boundary_info();
+	MeshBase::const_element_iterator   el  = mesh.active_elements_begin();
+	const MeshBase::const_element_iterator end_el = mesh.active_elements_end();
+	for ( ; el != end_el ; ++el)
+	{
+		const Elem *elem = *el;
+
+		for (unsigned int side=0; side < elem->n_sides(); ++side)
+		{
+			if (elem->neighbor(side))
+				continue;
+
+			Elem *elem_side = elem->build_side(side).release();
+			int bnd_id = bnd_info.boundary_id(elem, side);
+			if(find(boundary_ids.begin(), boundary_ids.end(), bnd_id) == boundary_ids.end())
+				continue;
+
+			unsigned int dim = _mesh.dimension();
+			FEType fe_type(Utility::string_to_enum<Order>("CONSTANT"), Utility::string_to_enum<FEFamily>("MONOMIAL"));
+			FEBase * _fe_face = (FEBase::build(dim, fe_type)).release();
+			QGauss * _qface = new QGauss(dim-1, FIRST);
+			_fe_face->attach_quadrature_rule(_qface);
+			_fe_face->reinit(elem, side);
+			const std::vector<Point> normals = _fe_face->get_normals();
+
+			_all_element.push_back(new SideElement(elem_side, -normals[0], _absorptivity, _diffuse_reflectivity, _mirrors_reflectivity));
+
+		}
+	}
+			cout << this << endl;
+	computeRD();
+	std::cout << "MonteCarloRadiationMaterial::initialSetup"  << std::endl;
+}
 
 void MonteCarloRadiationMaterial::computeRD()
 {
