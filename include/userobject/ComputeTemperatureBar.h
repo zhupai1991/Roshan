@@ -41,6 +41,9 @@ protected :
 	VariableValue &_temperature;
 //	map<SideElement*, Real> temperature_bar;
 	vector<Real> temperature_bar;
+
+public:
+	Real getTemBar(int i) const {return temperature_bar[i];}
 };
 
 template<>
