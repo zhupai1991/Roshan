@@ -127,7 +127,8 @@ void MonteCarloRadiationMaterial::computeQpProperties()
 	std::cout << "tem"  << std::endl;
 
 	std::cout << _temperature[_qp]  << std::endl;
-	_uo.getTemBar(0);
+	std::cout << _uo.getTemBar(0) << std::endl;
+	mooseError("d");
 }
 
 void MonteCarloRadiationMaterial::computeProperties()

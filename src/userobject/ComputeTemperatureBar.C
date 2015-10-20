@@ -88,11 +88,12 @@ void ComputeTemperatureBar::initialSetup()
 			_fe_face->reinit(elem, side);
 			const std::vector<Point> normals = _fe_face->get_normals();
 
-			_all_element.push_back(new SideElement(elem_side, -normals[0], _absorptivity, _diffuse_reflectivity, _mirrors_reflectivity));
+			_all_element.push_back(new SideElement(elem_side, normals[0], _absorptivity, _diffuse_reflectivity, _mirrors_reflectivity));
 
 		}
 	}
 	temperature_bar.resize(_all_element.size());
+	computeRD();
 
 }
 
@@ -159,7 +160,7 @@ void ComputeTemperatureBar::execute()
 
 void ComputeTemperatureBar::finalize()
 {
-	computeRD();
+//	computeRD();
 	computeQpProperties();
 	std::cout << "MonteCarloRadiationMaterial::initialSetup"  << std::endl;
 }

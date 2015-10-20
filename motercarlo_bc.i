@@ -40,7 +40,7 @@
     value = 300000
   [../]
   [./inner]
-    type = HeatFluxBC
+    type = HeatRadiationBC
     variable = temp
     boundary = 'in_left in_bottom in_right in_top'
     value = 0
@@ -54,7 +54,7 @@
     type = ComputeTemperatureBar
     boundary = 'in_left in_bottom in_right in_top'
     max_reflect_count = 10
-    particle_count=10000
+    particle_count=10
     absorptivity=1.0
     diffuse_reflectivity=0.5
     mirrors_reflectivity=0.5
@@ -78,7 +78,7 @@
     type = MonteCarloRadiationMaterial
     temperature = temp
     monte_carlo = montecarlo_userobject
-    boundary = 'in_left in_bottom in_right in_top'
+    boundary = 'out_top'
   [../]
 []
 
