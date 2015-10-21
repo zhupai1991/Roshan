@@ -7,6 +7,22 @@
   [../]
 []
 
+[AuxVariables]
+  [./heat_flux]
+    order = CONSTANT
+    family = MONOMIAL
+    
+  [../]
+[]
+
+[AuxKernels]
+  [./heat_flux_aux_kernel]
+    type = HeatFluxAuxKernel
+    variable = heat_flux
+    boundary = 'in_left in_bottom in_right in_top'
+  [../]
+[]
+
 [ICs]
   [./temp_ic]
     variable = temp
@@ -30,20 +46,19 @@
   [./out300]
     type = IsoThermalBC
     variable = temp
-    boundary = 'out_left out_top out_bottom'
+    boundary = 'out_left out_top out_bottom '
     value = 300
   [../]
   [./out500]
     type = HeatFluxBC
     variable = temp
     boundary = out_right
-    value = 300000
+    value = 1000000
   [../]
   [./inner]
     type = HeatRadiationBC
     variable = temp
     boundary = 'in_left in_bottom in_right in_top'
-    value = 0
   [../]
 
 []
@@ -54,8 +69,8 @@
     type = ComputeTemperatureBar
     boundary = 'in_left in_bottom in_right in_top'
     max_reflect_count = 10
-    particle_count=10
-    absorptivity=1.0
+    particle_count=10000
+    absorptivity=0.5
     diffuse_reflectivity=0.5
     mirrors_reflectivity=0.5
     temperature = temp
@@ -69,8 +84,8 @@
     block = ANY_BLOCK_ID
     t_list =  '100 200'
     roe_list = '400 400'
-    k_list =  '100 100'
-    cp_list = '500 500'
+    k_list =  '1000 1000'
+    cp_list = '100 100'
     sigma = 1
   [../]
 
@@ -78,14 +93,14 @@
     type = MonteCarloRadiationMaterial
     temperature = temp
     monte_carlo = montecarlo_userobject
-    boundary = 'out_top'
+    boundary = 'in_left in_bottom in_right in_top'
   [../]
 []
 
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 1E-00
+  dt = 1E-01
   num_steps = 1000
 
   l_tol = 1e-04

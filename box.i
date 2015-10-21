@@ -24,6 +24,17 @@
   [../]
 []
 
+[Materials]
+  [./material]
+    type = MonteCarloRadiationMaterial
+    temperature = u
+    boundary = '0'
+    monte_carlo = montecarlo_material
+  [../]
+
+  
+[]
+
 [Kernels]
   [./diff]
     type = Diffusion

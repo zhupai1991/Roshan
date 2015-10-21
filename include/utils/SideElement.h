@@ -16,6 +16,7 @@ public:
 	RayLine sendRay();
 	RayLine diffuseReflectRay(RayLine * rayline, Point point);
 	RayLine mirrorsReflectRay(RayLine * rayline, Point point);
+	Point getSideElementNormal() {return _normal;};
 	Real _absorptivity;
 	Real _diffuse_reflectivity;
 	Real _mirrors_reflectivity;

@@ -59,7 +59,6 @@ void ComputeTemperatureBar::initialSetup()
 	{
 		BoundaryID id = _mesh.getBoundaryID(*it);
 		boundary_ids.insert(id);
-		//    	std::cout << id <<endl;
 	}
 
 	MeshBase & mesh = _mesh.getMesh();
@@ -92,9 +91,34 @@ void ComputeTemperatureBar::initialSetup()
 
 		}
 	}
-	temperature_bar.resize(_all_element.size());
+	temperature_bar.resize(_all_element.size(), 300);
+	flux_radiation.resize(_all_element.size(), 0);
 	computeRD();
+}
 
+void ComputeTemperatureBar::initialize()
+{
+//	computeRadiationFlux();
+}
+
+void ComputeTemperatureBar::execute()
+{
+	int findi=Find_i(_current_side_elem);
+	Real temp_bar(0);
+
+	for(int _qp = 0; _qp < _q_point.size(); ++_qp)
+	{
+		temp_bar += (_JxW[_qp]*_temperature[_qp]);
+	}
+
+	temp_bar /= _current_side_volume;
+	temperature_bar[findi] = temp_bar;
+	cout <<  "side_element_centre:" << _all_element[findi]->_elem->centroid() << findi << "    T_bar:" << temperature_bar[findi] << endl;
+}
+
+void ComputeTemperatureBar::finalize()
+{
+	computeRadiationFlux();
 }
 
 void ComputeTemperatureBar::computeRD()
@@ -121,75 +145,49 @@ void ComputeTemperatureBar::computeRD()
 				_all_element[ii]->_RD[ _all_element[j_of_RDij] ]=_all_element[ii]->_RD[ _all_element[j_of_RDij] ]+1.0;
 		}
 
-		cout << endl << "单元计算结果：" << endl;
-		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
+//		cout << endl << "单元计算结果：" << endl;
+//		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
 
 		for (int i=0;i<_all_element.size();i++)
 		{
 			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
-			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
+//			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
 		}
 //		mooseError("产生随机位置时不支持的网格形状：");
 	}
 }
 
-void ComputeTemperatureBar::execute()
+void ComputeTemperatureBar::computeRadiationFlux()
 {
-	int find_i=0;
+	Real epsilon=5.67e-8;
+	Real Flux_Rad=0.0;
+
 	for (int i=0;i<_all_element.size();i++)
 	{
-		if( (_all_element[i]->_elem->centroid()-_current_side_elem->centroid()).size()<TOLERANCE )
+		Flux_Rad=0.0;
+		for (int j=0;j<_all_element.size();j++)
 		{
-			find_i=i;
+			Flux_Rad += (_all_element[j]->_RD[ _all_element[i] ])*_all_element[j]->_elem->volume()*epsilon*_absorptivity*pow(temperature_bar[j],4);
+		}
+
+		flux_radiation[i]= Flux_Rad/_all_element[i]->_elem->volume()-epsilon*_absorptivity*pow(temperature_bar[i],4);
+		cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << i << "      Flux:" << flux_radiation[i]  << endl;
+	}
+}
+
+int ComputeTemperatureBar::Find_i(const Elem * elem) const
+{
+	int findi=-1;
+
+	for (int i=0;i<_all_element.size();i++)
+	{
+		if( (_all_element[i]->_elem->centroid()-elem->centroid()).size()<TOLERANCE )
+		{
+			findi=i;
 			break;
 		}
 	}
-
-	Real temp_bar(0);
-	for(int _qp = 0; _qp < _q_point.size(); ++_qp)
-	{
-		temp_bar += (_JxW[_qp]*_temperature[_qp]);
-	}
-
-	temp_bar /= _current_side_volume;
-
-	temperature_bar[find_i] = temp_bar;
-
-	cout <<  "side_element_centre:" << _all_element[find_i]->_elem->centroid() << find_i << "    T_bar:" << temperature_bar[find_i] << endl;
-}
-
-void ComputeTemperatureBar::finalize()
-{
-//	computeRD();
-	computeQpProperties();
-	std::cout << "MonteCarloRadiationMaterial::initialSetup"  << std::endl;
-}
-
-void ComputeTemperatureBar::computeQpProperties()
-{
-	vector<Real> Flux_Radiation;
-	Real epsilon=5.67e-8;
-	Real Flux_Rad=0;
-
-	Flux_Radiation.resize(_all_element.size());
-
-	for (int i=0;i<_all_element.size();i++)
-	{
-		for (int j=0;j<_all_element.size();j++)
-		{
-//			cout << _all_element[j]->_RD[ _all_element[i] ]*_all_element[j]->_elem->volume()*epsilon*_absorptivity*pow(temperature_bar[j],4) << endl;
-			Flux_Rad += _all_element[j]->_RD[ _all_element[i] ]*_all_element[j]->_elem->volume()*epsilon*_absorptivity*pow(temperature_bar[j],4);
-		}
-
-//		for(int _qp = 0; _qp < _q_point.size(); ++_qp)
-//		{
-//		Flux_Radiation[i] = Flux_Rad/_all_element[i]->_elem->volume()-epsilon*_absorptivity*pow(_temperature[i],4);
-//		cout << Flux_Rad/_all_element[i]->_elem->volume() << endl;
-//		cout << epsilon*_absorptivity*pow(temperature_bar[i],4) << endl;
-		Flux_Radiation[i]=Flux_Rad/_all_element[i]->_elem->volume()-epsilon*_absorptivity*pow(temperature_bar[i],4);
-//		}
-		cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << i << "      Flux:" << Flux_Radiation[i]  << endl;
-	}
+	return findi;
 }
 
 int ComputeTemperatureBar::Which_SideelementIntersectedByLine(RayLine& ray, SideElement * sideelement_i, vector<SideElement*> sideelement_vec, Point & point)
@@ -201,9 +199,8 @@ int ComputeTemperatureBar::Which_SideelementIntersectedByLine(RayLine& ray, Side
 
 	for(int j=0; j<j_max; j++)
 	{
-//		if(sideelement_vec[j] == sideelement_i)
-		if( (sideelement_vec[j]->_elem->centroid()-sideelement_i->_elem->centroid()).size()<TOLERANCE )
-//		if( ((sideelement_vec[j]->_elem->centroid()-sideelement_i->_elem->centroid()).size() < TOLERANCE) || ((sideelement_vec[j]->_normal)*(sideelement_i->_normal) > TOLERANCE)  )
+//		if( (sideelement_vec[j]->_elem->centroid()-sideelement_i->_elem->centroid()).size()<TOLERANCE )
+		if( ((sideelement_vec[j]->getSideElementNormal())*(sideelement_i->getSideElementNormal()) > TOLERANCE)  )
 			continue;
 
 		else if(!(ray.sideIntersectedByLine(sideelement_vec[j]->_elem,pp)))
@@ -218,7 +215,6 @@ int ComputeTemperatureBar::Which_SideelementIntersectedByLine(RayLine& ray, Side
 			point=pp;
 		}
 	}
-//	cout << "in_Which_SideelementIntersectedByLine:" << point << endl;
 	return j_wanted;
 }
 
@@ -228,7 +224,6 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 	int j_of_RDij=-1;
 	int k=0;
 	bool charge=true;
-//	vector<SideElement*> sideelement_ve=sideelement_vec;
 	SideElement * current_elem= sideelement_i;
 	RayLine rayline_in;
 	RayLine rayline_out;
@@ -237,14 +232,9 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 	Point p(0,0,0);
 
 	rayline_in=(*current_elem).sendRay();
-//	cout << rayline_in._normal << endl;
 	while (charge && (k < _max_reflect_count) )
 	{
-//		cout << "rayline_in:" << rayline_in << endl;
-
 		j=Which_SideelementIntersectedByLine( rayline_in, current_elem, sideelement_vec, p);
-//		cout << "j:" << j << endl;
-//		cout << "p:" << p << endl;
 
 		if(j==-1)
 			return -1;
@@ -279,8 +269,6 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 			continue;
 		}
 	}
-
-//	cout << "k:" << k << endl;
 
 	if(!charge)
 		return j_of_RDij;
