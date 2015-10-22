@@ -11,13 +11,14 @@ class SideElement
 
 public:
 	SideElement(const Elem *elem, const Point normal, Real absorptivity = 0.5, Real diffuse_reflectivity = 0.5, Real mirrors_reflectivity = 0.5);
-
+	~SideElement(){delete _elem;};
 public:
 	RayLine sendRay();
 	RayLine diffuseReflectRay(RayLine * rayline, Point point);
 	RayLine mirrorsReflectRay(RayLine * rayline, Point point);
 	Point getSideElementNormal() {return _normal;};
 	Real _absorptivity;
+//	Real _emissivity;
 	Real _diffuse_reflectivity;
 	Real _mirrors_reflectivity;
 //	Real RD();

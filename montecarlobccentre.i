@@ -1,7 +1,15 @@
 [Mesh]
-  file = square_cavity_2D_20.exo
+  dim = 2
+  file = square_cavity_2D_test_100.exo
+  uniform_refine = 1
 []
-
+[MeshModifiers]
+  [./scale]
+    type = Transform
+    transform = SCALE
+    vector_value = '0.01 0.01 0.01'
+  [../]
+[]
 [Variables]
   [./temp]
   [../]
@@ -19,7 +27,7 @@
   [./heat_flux_aux_kernel]
     type = HeatFluxAuxKernel
     variable = heat_flux
-    boundary = 'in_left in_bottom in_right in_top'
+    boundary = 'in_left_1 in_bottom_1 in_right_1 in_top_1 in_left_0 in_bottom_0 in_right_0 in_top_0'
   [../]
 []
 
@@ -53,12 +61,12 @@
     type = HeatFluxBC
     variable = temp
     boundary = out_right
-    value = 1000000
+    value = 50000
   [../]
   [./inner]
     type = HeatRadiationBC
     variable = temp
-    boundary = 'in_left in_bottom in_right in_top'
+    boundary = 'in_left_1 in_bottom_1 in_right_1 in_top_1 in_left_0 in_bottom_0 in_right_0 in_top_0'
   [../]
 
 []
@@ -67,7 +75,7 @@
 [UserObjects]
   [./montecarlo_userobject]
     type = ComputeTemperatureBar
-    boundary = 'in_left in_bottom in_right in_top'
+    boundary = 'in_left_1 in_bottom_1 in_right_1 in_top_1 in_left_0 in_bottom_0 in_right_0 in_top_0'
     max_reflect_count = 10
     particle_count=10000
     absorptivity=1
@@ -84,7 +92,7 @@
     block = ANY_BLOCK_ID
     t_list =  '100 200'
     roe_list = '400 400'
-    k_list =  '1000 1000'
+    k_list =  '0.1 0.1'
     cp_list = '100 100'
     sigma = 1
   [../]
@@ -93,15 +101,15 @@
     type = MonteCarloRadiationMaterial
     temperature = temp
     monte_carlo = montecarlo_userobject
-    boundary = 'in_left in_bottom in_right in_top'
+    boundary = 'in_left_1 in_bottom_1 in_right_1 in_top_1 in_left_0 in_bottom_0 in_right_0 in_top_0'
   [../]
 []
 
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 1E-01
-  num_steps = 1
+  dt = 1E-02
+  num_steps = 1000
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05

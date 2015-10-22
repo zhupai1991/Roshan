@@ -51,6 +51,15 @@ ComputeTemperatureBar::ComputeTemperatureBar(const std::string & name, InputPara
 {
 }
 
+ComputeTemperatureBar::~ComputeTemperatureBar()
+{
+	for(int i=0; i<_all_element.size(); i++)
+	{
+//		if(_all_element[i])
+			delete _all_element[i];
+	}
+}
+
 void ComputeTemperatureBar::initialSetup()
 {
 	vector<BoundaryName> boundary = getParam<std::vector<BoundaryName> >("boundary");
@@ -89,9 +98,11 @@ void ComputeTemperatureBar::initialSetup()
 
 			_all_element.push_back(new SideElement(elem_side, normals[0], _absorptivity, _diffuse_reflectivity, _mirrors_reflectivity));
 
+			delete _fe_face;
+			delete _qface;
 		}
 	}
-	temperature_bar.resize(_all_element.size(), 300);
+	temperature_pow4_bar.resize(_all_element.size(), 300);
 	flux_radiation.resize(_all_element.size(), 0);
 	computeRD();
 }
@@ -104,16 +115,16 @@ void ComputeTemperatureBar::initialize()
 void ComputeTemperatureBar::execute()
 {
 	int findi=Find_i(_current_side_elem);
-	Real temp_bar(0);
+	Real temp_pow4_bar(0);
 
 	for(int _qp = 0; _qp < _q_point.size(); ++_qp)
 	{
-		temp_bar += (_JxW[_qp]*_temperature[_qp]);
+		temp_pow4_bar += (_JxW[_qp]*pow(_temperature[_qp],4) );
 	}
 
-	temp_bar /= _current_side_volume;
-	temperature_bar[findi] = temp_bar;
-	cout <<  "side_element_centre:" << _all_element[findi]->_elem->centroid() << findi << "    T_bar:" << temperature_bar[findi] << endl;
+	temp_pow4_bar /= _current_side_volume;
+	temperature_pow4_bar[findi] = temp_pow4_bar;
+	cout <<  "side_element_centre:" << _all_element[findi]->_elem->centroid() << findi << "    T_pow4_bar:" << temperature_pow4_bar[findi] << endl;
 }
 
 void ComputeTemperatureBar::finalize()
@@ -167,10 +178,10 @@ void ComputeTemperatureBar::computeRadiationFlux()
 		Flux_Rad=0.0;
 		for (int j=0;j<_all_element.size();j++)
 		{
-			Flux_Rad += (_all_element[j]->_RD[ _all_element[i] ])*_all_element[j]->_elem->volume()*epsilon*_absorptivity*pow(temperature_bar[j],4);
+			Flux_Rad += (_all_element[j]->_RD[ _all_element[i] ])*_all_element[j]->_elem->volume()*_absorptivity*temperature_pow4_bar[j];
 		}
 
-		flux_radiation[i]= Flux_Rad/_all_element[i]->_elem->volume()-epsilon*_absorptivity*pow(temperature_bar[i],4);
+		flux_radiation[i]= epsilon*Flux_Rad/_all_element[i]->_elem->volume()-epsilon*_absorptivity*temperature_pow4_bar[i];
 		cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << i << "      Flux:" << flux_radiation[i]  << endl;
 	}
 }
