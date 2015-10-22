@@ -16,7 +16,6 @@ public RandomInterface
 {
 public:
 	ComputeTemperatureBar(const InputParameters & parameters);
-	ComputeTemperatureBar(const std::string & name, InputParameters parameters);
 	int Which_SideelementIntersectedByLine(RayLine& ray, SideElement * sideelement_i, vector<SideElement*> sideelement_vec, Point & point);
 	int Find_j_of_RDij(SideElement * sideelement_i, vector<SideElement*> sideelement_vec);
 	int Find_i(const Elem * elem) const;

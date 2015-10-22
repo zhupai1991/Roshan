@@ -24,8 +24,8 @@ InputParameters validParams<MonteCarloRadiationMaterial>()
   return params;
 }
 
-MonteCarloRadiationMaterial::MonteCarloRadiationMaterial(const std::string & name, InputParameters parameters) :
-      Material(name, parameters),
+MonteCarloRadiationMaterial::MonteCarloRadiationMaterial(const InputParameters & parameters) :
+      Material(parameters),
 	  RandomInterface(parameters, *parameters.get<FEProblem *>("_fe_problem"), parameters.get<THREAD_ID>("_tid"), false),
 	  _current_side_elem(_assembly.sideElem()),
 	  _temperature(coupledValue("temperature")),

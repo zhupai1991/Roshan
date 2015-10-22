@@ -5,7 +5,7 @@
 class GetSigma : public AuxKernel
 {
 public:
-	GetSigma(const std::string & name, InputParameters parameters);
+	GetSigma(const InputParameters & parameters);
 
 protected:
   virtual Real computeValue();

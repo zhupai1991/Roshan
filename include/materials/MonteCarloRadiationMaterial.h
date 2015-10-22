@@ -16,7 +16,7 @@ class MonteCarloRadiationMaterial :
 		public RandomInterface
 {
 public:
-	MonteCarloRadiationMaterial(const std::string & name, InputParameters parameters);
+	MonteCarloRadiationMaterial(const InputParameters & parameters);
 	~MonteCarloRadiationMaterial(){};
 
 protected:

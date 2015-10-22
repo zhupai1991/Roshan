@@ -64,8 +64,8 @@ InputParameters validParams<RoshanApp>()
   return params;
 }
 
-RoshanApp::RoshanApp(const std::string & name, InputParameters parameters) :
-    MooseApp(name, parameters)
+RoshanApp::RoshanApp(InputParameters parameters) :
+    MooseApp(parameters)
 {
   srand(processor_id());
 
@@ -85,12 +85,19 @@ RoshanApp::~RoshanApp()
 void
 RoshanApp::registerApps()
 {
+#undef  registerApp
+#define registerApp(name) AppFactory::instance().reg<name>(#name)
   registerApp(RoshanApp);
+#undef  registerApp
+#define registerApp(name) AppFactory::instance().regLegacy<name>(#name)
 }
 
 void
 RoshanApp::registerObjects(Factory & factory)
 {
+#undef registerObject
+#define registerObject(name) factory.reg<name>(stringifyName(name))
+
 	registerInitialCondition(TestIC);
 	registerInitialCondition(Strange);
 
@@ -138,6 +145,8 @@ RoshanApp::registerObjects(Factory & factory)
 	registerPostprocessor(ThetaL2Error);
 
 //	registerOutput(OutputTest);
+#undef registerObject
+#define registerObject(name) factory.regLegacy<name>(stringifyName(name))
 }
 
 void

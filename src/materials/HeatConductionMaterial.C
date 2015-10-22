@@ -18,8 +18,8 @@ InputParameters validParams<HeatConductionMaterial>()
   return params;
 }
 
-HeatConductionMaterial::HeatConductionMaterial(const std::string & name, InputParameters parameters) :
-      Material(name, parameters),
+HeatConductionMaterial::HeatConductionMaterial(const InputParameters & parameters) :
+    Material(parameters),
     _property_file(isParamValid("property_file") ? getParam<std::string>("property_file") : "" ),
     _temperature(coupledValue("temperature")),
     _k(declareProperty<Real>("thermal_conductivity")),

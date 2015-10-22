@@ -9,7 +9,7 @@ class Function;
 class HeatConductionMaterial : public Material
 {
 public:
-  HeatConductionMaterial(const std::string & name, InputParameters parameters);
+  HeatConductionMaterial(const InputParameters & parameters);
 
 protected:
   virtual void computeProperties();

@@ -39,18 +39,6 @@ ComputeTemperatureBar::ComputeTemperatureBar(const InputParameters & parameters)
 {
 }
 
-ComputeTemperatureBar::ComputeTemperatureBar(const std::string & name, InputParameters parameters) :
-	SideUserObject(name, parameters),
-	RandomInterface(parameters, *parameters.get<FEProblem *>("_fe_problem"), parameters.get<THREAD_ID>("_tid"), false),
-	_max_reflect_count(getParam<int> ("max_reflect_count")),
-	_particle_count(getParam<int> ("particle_count")),
-	_absorptivity(getParam<Real> ("absorptivity")),
-	_diffuse_reflectivity(getParam<Real> ("diffuse_reflectivity")),
-	_mirrors_reflectivity(getParam<Real> ("mirrors_reflectivity")),
-	_temperature(coupledValue("temperature"))
-{
-}
-
 ComputeTemperatureBar::~ComputeTemperatureBar()
 {
 	for(int i=0; i<_all_element.size(); i++)

@@ -8,8 +8,8 @@ InputParameters validParams<GetSigma>()
   return params;
 }
 
-GetSigma::GetSigma(const std::string & name, InputParameters parameters) :
-    AuxKernel(name, parameters),
+GetSigma::GetSigma(const InputParameters &parameters) :
+    AuxKernel(parameters),
 	_sigma(getMaterialProperty<Real>("sigma"))
 {
 }

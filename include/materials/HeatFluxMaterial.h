@@ -11,7 +11,7 @@ class Function;
 class HeatFluxMaterial : public Material
 {
 public:
-	HeatFluxMaterial(const std::string & name, InputParameters parameters);
+	HeatFluxMaterial(const InputParameters & parameters);
 
 protected:
   virtual void computeProperties();
