@@ -1,5 +1,6 @@
 #include "RoshanApp.h"
 
+#include "../../include/auxkernels/GetEpsilon.h"
 #include "PyroRhoChangeKernel.h"
 #include "PyroTempTimeDerivative.h"
 #include "TempDiffusionKernel.h"
@@ -30,7 +31,6 @@
 #include "PyrolysisGasVelocity.h"
 #include "NoSourcePressure.h"
 #include "GasConvection.h"
-#include "GetSigma.h"
 #include "HeatFluxAuxKernel.h"
 
 
@@ -137,7 +137,7 @@ RoshanApp::registerObjects(Factory & factory)
 //	registerAux(CosAuxKernel);
 //	registerAux(RhoTimeDerivative);
 //	registerAux(Gaspressure);
-	registerAux(GetSigma);
+	registerAux(GetEpsilon);
 	registerAux(HeatFluxAuxKernel);
 
 	registerFunction(AnalyticSolution);

@@ -22,6 +22,7 @@ public:
 	Real getTemBar(int i) const {return temperature_pow4_bar[i];}
 	Real getRadiationFlux(int i)  const  {return flux_radiation[i];}
 	Real getRadiationFlux(const Elem * elem)  const  {return flux_radiation[Find_i(elem)];}
+	Real getRadiationFluxJacobi(const Elem * elem)  const  {return flux_radiation_jacobi[Find_i(elem)];}
 	~ComputeTemperatureBar();
 protected :
 	virtual void initialSetup();
@@ -43,7 +44,9 @@ protected :
 
 	VariableValue &_temperature;
 	vector<Real> temperature_pow4_bar;
+	vector<Real> temperature_pow3_bar;
 	vector<Real> flux_radiation;
+	vector<Real> flux_radiation_jacobi;
 };
 
 

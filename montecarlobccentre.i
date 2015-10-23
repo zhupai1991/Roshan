@@ -1,13 +1,13 @@
 [Mesh]
   dim = 2
-  file = square_cavity_2D_test_100.exo
-  uniform_refine = 1
+  file = square_cavity_2D_test_20.exo
+  uniform_refine = 0
 []
 [MeshModifiers]
   [./scale]
     type = Transform
     transform = SCALE
-    vector_value = '0.01 0.01 0.01'
+    vector_value = '0.1 0.1 0.1'
   [../]
 []
 [Variables]
@@ -19,7 +19,6 @@
   [./heat_flux]
     order = CONSTANT
     family = MONOMIAL
-    
   [../]
 []
 
@@ -52,16 +51,16 @@
 
 [BCs]
   [./out300]
-    type = IsoThermalBC
+    type = HeatFluxBC
     variable = temp
     boundary = 'out_left out_top out_bottom '
-    value = 300
+    value = 0
   [../]
   [./out500]
     type = HeatFluxBC
     variable = temp
     boundary = out_right
-    value = 50000
+    value = 1000000
   [../]
   [./inner]
     type = HeatRadiationBC
@@ -78,7 +77,7 @@
     boundary = 'in_left_1 in_bottom_1 in_right_1 in_top_1 in_left_0 in_bottom_0 in_right_0 in_top_0'
     max_reflect_count = 10
     particle_count=10000
-    absorptivity=1
+    absorptivity=1.0
     diffuse_reflectivity=0.5
     mirrors_reflectivity=0.5
     temperature = temp
@@ -86,13 +85,23 @@
 []
 
 [Materials]
-  [./material]
+  [./material1]
     type = HeatConductionMaterial
     temperature = temp
-    block = ANY_BLOCK_ID
+    block = '1 2 3 4'
     t_list =  '100 200'
     roe_list = '400 400'
-    k_list =  '0.1 0.1'
+    k_list =  '50 50'
+    cp_list = '100 100'
+    sigma = 1
+  [../]
+[./material2]
+    type = HeatConductionMaterial
+    temperature = temp
+    block = 5
+    t_list =  '100 200'
+    roe_list = '400 400'
+    k_list =  '0.5 0.5'
     cp_list = '100 100'
     sigma = 1
   [../]
@@ -120,12 +129,15 @@
 []
 
 [Outputs]
-  exodus = true
-  output_on = 'initial timestep_end'
   [./console]
     type = Console
     perf_log = true
     output_on = 'timestep_end failed nonlinear linear'
+  [../]
+  [./exodus]
+    type = Exodus
+    perf_log = true
+    output_on = 'timestep_end'
   [../]
 []
 

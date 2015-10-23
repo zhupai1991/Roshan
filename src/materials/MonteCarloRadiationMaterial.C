@@ -40,7 +40,13 @@ void MonteCarloRadiationMaterial::computeQpProperties()
 //	std::cout << "flu"  << std::endl;
 //	std::cout << "热流: " << _uo.getRadiationFlux(_current_side_elem) << std::endl;
 //	mooseError("d");
+	Real sigma=5.67e-8;
+	Real epsilon=1.0;
+
 	Real flux =  _uo.getRadiationFlux(_current_side_elem) ;
-	_flux[_qp] = flux;
-	_flux_jacobi[_qp] = 0;
+	Real flux_jacobi =  _uo.getRadiationFluxJacobi(_current_side_elem) ;
+
+	_flux[_qp] = flux-sigma*epsilon*pow(_temperature[_qp],4);
+	_flux_jacobi[_qp] = flux_jacobi-4*sigma*epsilon*pow(_temperature[_qp], 3);
+//	cout << "side_element_centre:" << _current_side_elem->centroid() << "      Flux:" << _flux[_qp]  << endl;
 }

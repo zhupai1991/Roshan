@@ -90,8 +90,10 @@ void ComputeTemperatureBar::initialSetup()
 			delete _qface;
 		}
 	}
-	temperature_pow4_bar.resize(_all_element.size(), 300);
+	temperature_pow4_bar.resize(_all_element.size(), 8.1e+9);
+	temperature_pow3_bar.resize(_all_element.size(), 2.7e+7);
 	flux_radiation.resize(_all_element.size(), 0);
+	flux_radiation_jacobi.resize(_all_element.size(), 0);
 	computeRD();
 }
 
@@ -104,15 +106,19 @@ void ComputeTemperatureBar::execute()
 {
 	int findi=Find_i(_current_side_elem);
 	Real temp_pow4_bar(0);
+	Real temp_pow3_bar(0);
 
 	for(int _qp = 0; _qp < _q_point.size(); ++_qp)
 	{
 		temp_pow4_bar += (_JxW[_qp]*pow(_temperature[_qp],4) );
+		temp_pow3_bar += (_JxW[_qp]*pow(_temperature[_qp],3) );
 	}
 
 	temp_pow4_bar /= _current_side_volume;
+	temp_pow3_bar /= _current_side_volume;
 	temperature_pow4_bar[findi] = temp_pow4_bar;
-	cout <<  "side_element_centre:" << _all_element[findi]->_elem->centroid() << findi << "    T_pow4_bar:" << temperature_pow4_bar[findi] << endl;
+	temperature_pow3_bar[findi] = temp_pow3_bar;
+//	cout <<  "side_element_centre:" << _all_element[findi]->_elem->centroid() << findi << "    T_pow4_bar:" << temperature_pow4_bar[findi] << endl;
 }
 
 void ComputeTemperatureBar::finalize()
@@ -169,8 +175,10 @@ void ComputeTemperatureBar::computeRadiationFlux()
 			Flux_Rad += (_all_element[j]->_RD[ _all_element[i] ])*_all_element[j]->_elem->volume()*_absorptivity*temperature_pow4_bar[j];
 		}
 
-		flux_radiation[i]= epsilon*Flux_Rad/_all_element[i]->_elem->volume()-epsilon*_absorptivity*temperature_pow4_bar[i];
-		cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << i << "      Flux:" << flux_radiation[i]  << endl;
+//		flux_radiation[i]= epsilon*Flux_Rad/_all_element[i]->_elem->volume()-epsilon*_absorptivity*temperature_pow4_bar[i];
+		flux_radiation[i]= epsilon*Flux_Rad/_all_element[i]->_elem->volume();
+		flux_radiation_jacobi[i]= 4*epsilon*(_all_element[i]->_RD[ _all_element[i] ])*_absorptivity*temperature_pow3_bar[i];
+//		cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << i << "      Flux:" << flux_radiation[i]  << endl;
 	}
 }
 
