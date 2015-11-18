@@ -21,6 +21,7 @@ InputParameters validParams<MonteCarloRadiationMaterial>()
   params += validParams<RandomInterface>();
   params.addCoupledVar("temperature", "温度场");
   params.addRequiredParam<UserObjectName>("monte_carlo", "Monte Carlo");
+  params.addParam<Real> ("epsilon", 0.5, "发射率");
   return params;
 }
 
@@ -30,6 +31,7 @@ MonteCarloRadiationMaterial::MonteCarloRadiationMaterial(const InputParameters &
 	  _current_side_elem(_assembly.sideElem()),
 	  _temperature(coupledValue("temperature")),
 	  _uo((getUserObject<ComputeTemperatureBar>("monte_carlo"))),
+	  _epsilon(getParam<Real> ("epsilon")),
 	  _flux(declareProperty<Real>("heat_flux")),
       _flux_jacobi(declareProperty<Real>("heat_flux_jacobi"))
 {
@@ -41,12 +43,11 @@ void MonteCarloRadiationMaterial::computeQpProperties()
 //	std::cout << "热流: " << _uo.getRadiationFlux(_current_side_elem) << std::endl;
 //	mooseError("d");
 	Real sigma=5.67e-8;
-	Real epsilon=1.0;
 
 	Real flux =  _uo.getRadiationFlux(_current_side_elem) ;
 	Real flux_jacobi =  _uo.getRadiationFluxJacobi(_current_side_elem) ;
 
-	_flux[_qp] = flux-sigma*epsilon*pow(_temperature[_qp],4);
-	_flux_jacobi[_qp] = flux_jacobi-4*sigma*epsilon*pow(_temperature[_qp], 3);
+	_flux[_qp] = flux-sigma*_epsilon*pow(_temperature[_qp],4);
+	_flux_jacobi[_qp] = flux_jacobi-4*sigma*_epsilon*pow(_temperature[_qp], 3);
 //	cout << "side_element_centre:" << _current_side_elem->centroid() << "      Flux:" << _flux[_qp]  << endl;
 }

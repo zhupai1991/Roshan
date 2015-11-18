@@ -110,6 +110,7 @@
     type = MonteCarloRadiationMaterial
     temperature = temp
     monte_carlo = montecarlo_userobject
+    epsilon = 1.0
     boundary = 'in_left_1 in_bottom_1 in_right_1 in_top_1 in_left_0 in_bottom_0 in_right_0 in_top_0'
   [../]
 []
@@ -136,6 +137,12 @@
   [../]
   [./exodus]
     type = Exodus
+    perf_log = true
+    output_on = 'timestep_end'
+  [../]
+[./tecplot]
+    type = Tecplot
+    interval = 1000
     perf_log = true
     output_on = 'timestep_end'
   [../]

@@ -26,6 +26,7 @@ protected:
 
   VariableValue &_temperature;
   const ComputeTemperatureBar & _uo;
+  Real _epsilon;
   MaterialProperty<Real> & _flux;
   MaterialProperty<Real> & _flux_jacobi;
 
