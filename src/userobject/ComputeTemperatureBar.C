@@ -9,8 +9,12 @@
 
 #include "RayLine.h"
 #include "MooseRandom.h"
+#include "UserDefinedMesh.h"
+#include "UserDefinedElem.h"
+#include "UserDefinedSideElem.h"
 
 using namespace std;
+using namespace Roshan;
 
 template<>
 InputParameters validParams<ComputeTemperatureBar>()
@@ -19,9 +23,12 @@ InputParameters validParams<ComputeTemperatureBar>()
 	params += validParams<RandomInterface>();
 	params.addParam<int> ("max_reflect_count", 10, "最大反射次数");
 	params.addParam<int> ("particle_count", 1000000, "单元发射粒子数");
-	params.addParam<Real> ("absorptivity", 0.5, "吸收率");
-	params.addParam<Real> ("diffuse_reflectivity", 0.5, "漫反射百分比");
-	params.addParam<Real> ("mirrors_reflectivity", 0.5, "镜反射百分比");
+	params.addParam< vector<Real> > ("transmissivity", "透射率");
+	params.addParam< vector<Real> > ("absorptivity", "吸收率");
+	params.addParam< vector<Real> > ("diffuse_reflectivity", "漫反射百分比");
+	params.addParam< vector<Real> > ("mirrors_reflectivity", "镜反射百分比");
+	params.addParam<std::vector<SubdomainName> >("block", "The list of boundary IDs from the mesh where this boundary condition applies");
+	params.addParam<string >("boundary_groups", "The list of boundary groups");
 	params.addCoupledVar("temperature", "温度场");
 
 	return params;
@@ -32,11 +39,18 @@ ComputeTemperatureBar::ComputeTemperatureBar(const InputParameters & parameters)
 	RandomInterface(parameters, *parameters.get<FEProblem *>("_fe_problem"), parameters.get<THREAD_ID>("_tid"), false),
 	_max_reflect_count(getParam<int> ("max_reflect_count")),
 	_particle_count(getParam<int> ("particle_count")),
-	_absorptivity(getParam<Real> ("absorptivity")),
-	_diffuse_reflectivity(getParam<Real> ("diffuse_reflectivity")),
-	_mirrors_reflectivity(getParam<Real> ("mirrors_reflectivity")),
+	_transmissivity(getParam< vector<Real> > ("transmissivity")),
+	_absorptivity(getParam< vector<Real> > ("absorptivity")),
+	_diffuse_reflectivity(getParam< vector<Real> > ("diffuse_reflectivity")),
+	_mirrors_reflectivity(getParam< vector<Real> > ("mirrors_reflectivity")),
 	_temperature(coupledValue("temperature"))
 {
+	vector<SubdomainName> block = getParam<std::vector<SubdomainName> >("block");
+	for(vector<SubdomainName>::iterator it = block.begin(); it != block.end(); ++it)
+	{
+		SubdomainID id = _mesh.getSubdomainID(*it);
+		_block_ids.insert(id);
+	}
 }
 
 ComputeTemperatureBar::~ComputeTemperatureBar()
@@ -48,8 +62,85 @@ ComputeTemperatureBar::~ComputeTemperatureBar()
 	}
 }
 
+//void ComputeTemperatureBar::initialSetup()
+//{
+//	vector<BoundaryName> boundary = getParam<std::vector<BoundaryName> >("boundary");
+//	std::set<BoundaryID> boundary_ids;
+//	for(vector<BoundaryName>::iterator it = boundary.begin(); it != boundary.end(); ++it)
+//	{
+//		BoundaryID id = _mesh.getBoundaryID(*it);
+//		boundary_ids.insert(id);
+//	}
+//
+//	MeshBase & mesh = _mesh.getMesh();
+//	const BoundaryInfo &bnd_info = mesh.get_boundary_info();
+//	MeshBase::const_element_iterator   el  = mesh.active_elements_begin();
+//	const MeshBase::const_element_iterator end_el = mesh.active_elements_end();
+//	for ( ; el != end_el ; ++el)
+//	{
+//		const Elem *elem = *el;
+//
+//		for (unsigned int side=0; side < elem->n_sides(); ++side)
+//		{
+//			if (elem->neighbor(side))
+//				continue;
+//
+//			Elem *elem_side = elem->build_side(side).release();
+//			int bnd_id = bnd_info.boundary_id(elem, side);
+//			if(find(boundary_ids.begin(), boundary_ids.end(), bnd_id) == boundary_ids.end())
+//				continue;
+//
+//			unsigned int dim = _mesh.dimension();
+//			FEType fe_type(Utility::string_to_enum<Order>("CONSTANT"), Utility::string_to_enum<FEFamily>("MONOMIAL"));
+//			FEBase * _fe_face = (FEBase::build(dim, fe_type)).release();
+//			QGauss * _qface = new QGauss(dim-1, FIRST);
+//			_fe_face->attach_quadrature_rule(_qface);
+//			_fe_face->reinit(elem, side);
+//			const std::vector<Point> normals = _fe_face->get_normals();
+//
+//			_all_element.push_back(new SideElement(elem_side, normals[0], _absorptivity, _diffuse_reflectivity, _mirrors_reflectivity));
+//
+//			delete _fe_face;
+//			delete _qface;
+//		}
+//	}
+//	temperature_pow4_bar.resize(_all_element.size(), 8.1e+9);
+//	temperature_pow3_bar.resize(_all_element.size(), 2.7e+7);
+//	flux_radiation.resize(_all_element.size(), 0);
+//	flux_radiation_jacobi.resize(_all_element.size(), 0);
+//	computeRD();
+//}
+
 void ComputeTemperatureBar::initialSetup()
 {
+	string boundary_groups = getParam<string>("boundary_groups");
+	std::cout <<boundary_groups << std::endl;
+
+
+	vector<BoundaryName> group;
+	vector< vector<BoundaryName> > group_set;
+	MooseUtils::tokenize<BoundaryName>(boundary_groups, group, 1, ",");
+	group_set.resize(group.size());
+	for(int i = 0; i < group.size(); ++i)
+	{
+//		vector<BoundaryName> group_set;
+		MooseUtils::tokenize<BoundaryName>(group[i], group_set[i], 1, " ");
+//		for(int j = 0; j < group_set[i].size(); ++j)
+//		{
+//			cout << group_set[i][j] << endl;
+//		}
+//		cout << group[i] << endl;
+	}
+
+	for(int i = 0; i < group.size(); ++i)
+	{
+		cout << group[i] << endl;
+		for(int j = 0; j < group_set[i].size(); ++j)
+		{
+			cout << group_set[i][j] << endl;
+		}
+	}
+
 	vector<BoundaryName> boundary = getParam<std::vector<BoundaryName> >("boundary");
 	std::set<BoundaryID> boundary_ids;
 	for(vector<BoundaryName>::iterator it = boundary.begin(); it != boundary.end(); ++it)
@@ -58,36 +149,86 @@ void ComputeTemperatureBar::initialSetup()
 		boundary_ids.insert(id);
 	}
 
+	int count_sideelement = 0;
+
 	MeshBase & mesh = _mesh.getMesh();
+	UserDefinedMesh * mymesh = new UserDefinedMesh(_mesh);  //**************<--这里有new***************//
+
 	const BoundaryInfo &bnd_info = mesh.get_boundary_info();
-	MeshBase::const_element_iterator   el  = mesh.active_elements_begin();
-	const MeshBase::const_element_iterator end_el = mesh.active_elements_end();
-	for ( ; el != end_el ; ++el)
+	int nelems = mesh.n_elem();
+
+	mymesh->_userDefinedElem.resize(nelems);
+	for (int nelem =0; nelem<nelems; nelem++)
 	{
-		const Elem *elem = *el;
+		UserDefinedElem * newelem = new UserDefinedElem;    //**************<--这里有new***************//
+		mymesh->_userDefinedElem[nelem] = newelem;
+	}
 
-		for (unsigned int side=0; side < elem->n_sides(); ++side)
+	for (int nelem =0; nelem<nelems; nelem++)
+	{
+		const Elem * elem = mesh.elem(nelem);
+		UserDefinedElem * myelem = mymesh->_userDefinedElem[nelem];
+		myelem->_elem = elem;
+		int nsides = mesh.elem(nelem)->n_sides();
+		myelem->_userDefinedSideElem.resize(nsides);
+		for (int nside=0; nside < nsides; nside++)
 		{
-			if (elem->neighbor(side))
-				continue;
+			UserDefinedSideElem * newsideelem = new UserDefinedSideElem;    //**************<--这里有new***************//
+			myelem->_userDefinedSideElem[nside] = newsideelem;
+		}
+		myelem->_haveWhichSideElement.resize(nsides, -1);
 
-			Elem *elem_side = elem->build_side(side).release();
-			int bnd_id = bnd_info.boundary_id(elem, side);
-			if(find(boundary_ids.begin(), boundary_ids.end(), bnd_id) == boundary_ids.end())
-				continue;
+		for (int nside=0; nside < nsides; nside++)
+		{
+			UserDefinedSideElem * mysideelem = mymesh->_userDefinedElem[nelem]->_userDefinedSideElem[nside];
+			mysideelem->_elem = elem->side(nside).release();
+			mysideelem->_left_element = mymesh->_userDefinedElem[nelem];
 
-			unsigned int dim = _mesh.dimension();
-			FEType fe_type(Utility::string_to_enum<Order>("CONSTANT"), Utility::string_to_enum<FEFamily>("MONOMIAL"));
-			FEBase * _fe_face = (FEBase::build(dim, fe_type)).release();
-			QGauss * _qface = new QGauss(dim-1, FIRST);
-			_fe_face->attach_quadrature_rule(_qface);
-			_fe_face->reinit(elem, side);
-			const std::vector<Point> normals = _fe_face->get_normals();
+			if( ElemHaveNeighborInBlock(elem->neighbor(nside), _block_ids) )
+				mysideelem->_right_element = mymesh->_userDefinedElem[elem->neighbor(nside)->id()];
 
-			_all_element.push_back(new SideElement(elem_side, normals[0], _absorptivity, _diffuse_reflectivity, _mirrors_reflectivity));
+			else
+			{
+				mysideelem->_right_element = NULL;
 
-			delete _fe_face;
-			delete _qface;
+				Elem *elem_side = elem->build_side(nside).release();
+				int bnd_id = bnd_info.boundary_id(elem, nside);
+
+				int bnd_in_which_group = -1;
+				for(int i = 0; i < group.size(); ++i)
+				{
+					for(int j = 0; j < group_set[i].size(); ++j)
+					{
+						if(_mesh.getBoundaryID(group_set[i][j]) == bnd_id)
+						{
+							bnd_in_which_group = i;
+							break;
+						}
+					}
+				}
+
+				if(find(boundary_ids.begin(), boundary_ids.end(), bnd_id) == boundary_ids.end())
+				{
+					continue;
+				}
+
+				unsigned int dim = _mesh.dimension();
+				FEType fe_type(Utility::string_to_enum<Order>("CONSTANT"), Utility::string_to_enum<FEFamily>("MONOMIAL"));
+				FEBase * _fe_face = (FEBase::build(dim, fe_type)).release();
+				QGauss * _qface = new QGauss(dim-1, FIRST);
+				_fe_face->attach_quadrature_rule(_qface);
+				_fe_face->reinit(elem, nside);
+				const std::vector<Point> normals = _fe_face->get_normals();
+				SideElement * newsideelement = new SideElement(elem_side, -normals[0], _transmissivity[bnd_in_which_group], _absorptivity[bnd_in_which_group], _diffuse_reflectivity[bnd_in_which_group], _mirrors_reflectivity[bnd_in_which_group]);    //**************<--这里有new***************//
+				_all_element.push_back(newsideelement);
+				_all_element[count_sideelement]->_belong_to_which_elem = myelem;
+				_all_element[count_sideelement]->_is_which_sideelem = nside;
+				myelem->_haveWhichSideElement[nside] = count_sideelement;
+				count_sideelement++;
+
+				delete _fe_face;
+				delete _qface;
+			}
 		}
 	}
 	temperature_pow4_bar.resize(_all_element.size(), 8.1e+9);
@@ -95,6 +236,30 @@ void ComputeTemperatureBar::initialSetup()
 	flux_radiation.resize(_all_element.size(), 0);
 	flux_radiation_jacobi.resize(_all_element.size(), 0);
 	computeRD();
+}
+
+bool ComputeTemperatureBar::ElemHaveNeighborInBlock(Elem * elem, set<SubdomainID> block_ids)
+{
+	if (elem)
+	{
+		set<SubdomainID>::iterator it;
+		for(it = block_ids.begin(); it != block_ids.end(); it++)
+		{
+			if(elem->processor_id() == *it)
+			{
+				return true;
+			}
+
+			else
+				continue;
+		}
+		return false;
+	}
+
+	else
+	{
+		return false;
+	}
 }
 
 void ComputeTemperatureBar::initialize()
@@ -150,13 +315,13 @@ void ComputeTemperatureBar::computeRD()
 				_all_element[ii]->_RD[ _all_element[j_of_RDij] ]=_all_element[ii]->_RD[ _all_element[j_of_RDij] ]+1.0;
 		}
 
-//		cout << endl << "单元计算结果：" << endl;
-//		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
+		cout << endl << "单元计算结果：" << endl;
+		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
 
 		for (int i=0;i<_all_element.size();i++)
 		{
 			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
-//			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
+			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
 		}
 //		mooseError("产生随机位置时不支持的网格形状：");
 	}
@@ -172,12 +337,12 @@ void ComputeTemperatureBar::computeRadiationFlux()
 		Flux_Rad=0.0;
 		for (int j=0;j<_all_element.size();j++)
 		{
-			Flux_Rad += (_all_element[j]->_RD[ _all_element[i] ])*_all_element[j]->_elem->volume()*_absorptivity*temperature_pow4_bar[j];
+			Flux_Rad += (_all_element[j]->_RD[ _all_element[i] ])*(_all_element[j]->_elem->volume())*_all_element[i]->_absorptivity*temperature_pow4_bar[j];
 		}
 
 //		flux_radiation[i]= epsilon*Flux_Rad/_all_element[i]->_elem->volume()-epsilon*_absorptivity*temperature_pow4_bar[i];
 		flux_radiation[i]= epsilon*Flux_Rad/_all_element[i]->_elem->volume();
-		flux_radiation_jacobi[i]= 4*epsilon*(_all_element[i]->_RD[ _all_element[i] ])*_absorptivity*temperature_pow3_bar[i];
+		flux_radiation_jacobi[i]= 4*epsilon*(_all_element[i]->_RD[ _all_element[i] ])*_all_element[i]->_absorptivity*temperature_pow3_bar[i];
 //		cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << i << "      Flux:" << flux_radiation[i]  << endl;
 	}
 }
@@ -197,33 +362,95 @@ int ComputeTemperatureBar::Find_i(const Elem * elem) const
 	return findi;
 }
 
-int ComputeTemperatureBar::Which_SideelementIntersectedByLine(RayLine& ray, SideElement * sideelement_i, vector<SideElement*> sideelement_vec, Point & point)
-{
-	int j_max=sideelement_vec.size();
-	int j_wanted=-1;
-	Point pp=ray._p0;
-	point=ray._p1;
-
-	for(int j=0; j<j_max; j++)
-	{
-//		if( (sideelement_vec[j]->_elem->centroid()-sideelement_i->_elem->centroid()).size()<TOLERANCE )
-		if( ((sideelement_vec[j]->getSideElementNormal())*(sideelement_i->getSideElementNormal()) > TOLERANCE)  )
-			continue;
-
-		else if(!(ray.sideIntersectedByLine(sideelement_vec[j]->_elem,pp)))
-			continue;
-
-		else if((pp-ray._p0).size()>(point-ray._p0).size())
-			continue;
-
-		else
-		{
-			j_wanted=j;
-			point=pp;
-		}
-	}
-	return j_wanted;
-}
+//int ComputeTemperatureBar::Which_SideelementIntersectedByLine(RayLine& ray, SideElement * sideelement_i, vector<SideElement*> sideelement_vec, Point & point)
+//{
+//	int j_max=sideelement_vec.size();
+//	int j_wanted=-1;
+//	Point pp=ray._p0;
+//	point=ray._p1;
+//
+//	for(int j=0; j<j_max; j++)
+//	{
+////		if( (sideelement_vec[j]->_elem->centroid()-sideelement_i->_elem->centroid()).size()<TOLERANCE )
+//		if( ((sideelement_vec[j]->getSideElementNormal())*(sideelement_i->getSideElementNormal()) > TOLERANCE)  )
+//			continue;
+//
+//		else if(!(ray.sideIntersectedByLine(sideelement_vec[j]->_elem,pp)))
+//			continue;
+//
+//		else if((pp-ray._p0).size()>(point-ray._p0).size())
+//			continue;
+//
+//		else
+//		{
+//			j_wanted=j;
+//			point=pp;
+//		}
+//	}
+//	return j_wanted;
+//}
+//
+//int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<SideElement*> sideelement_vec)
+//{
+//	int j=0;
+//	int j_of_RDij=-1;
+//	int k=0;
+//	bool charge=true;
+//	SideElement * current_elem= sideelement_i;
+//	RayLine rayline_in;
+//	RayLine rayline_out;
+//	RayLine* ray_in=&rayline_in;
+//	RayLine* ray_out=&rayline_out;
+//	Point p(0,0,0);
+//
+//	rayline_in=(*current_elem).sendRay();
+//	while (charge && (k < _max_reflect_count) )
+//	{
+//		j=Which_SideelementIntersectedByLine( rayline_in, current_elem, sideelement_vec, p);
+//
+//		if(j==-1)
+//			return -1;
+//
+//		else if(MooseRandom::rand()<sideelement_vec[j]->_absorptivity)
+//		{
+////			cout << "Absorptivity" << endl;
+//			charge=false;
+//			j_of_RDij=j;
+//			break;
+//		}
+//
+//		else if(MooseRandom::rand()<sideelement_vec[j]->_diffuse_reflectivity)
+//		{
+////			cout << "Diffuse_Reflectivity" << endl;
+//			rayline_out=sideelement_vec[j]->diffuseReflectRay(ray_in,p);
+//			current_elem=sideelement_vec[j];
+//			rayline_in=rayline_out;
+//			j_of_RDij=j;
+//			k++;
+//			continue;
+//		}
+//
+//		else
+//		{
+////			cout << "Mirrors_ReflectRay" << endl;
+//			rayline_out=sideelement_vec[j]->mirrorsReflectRay(ray_in,p);
+//			current_elem=sideelement_vec[j];
+//			rayline_in=rayline_out;
+//			j_of_RDij=j;
+//			k++;
+//			continue;
+//		}
+//	}
+//
+//	if(!charge)
+//		return j_of_RDij;
+//
+//	else if(k == _max_reflect_count)
+//		return j_of_RDij;
+//
+//	else
+//		return -1;
+//}
 
 int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<SideElement*> sideelement_vec)
 {
@@ -231,6 +458,7 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 	int j_of_RDij=-1;
 	int k=0;
 	bool charge=true;
+//	vector<SideElement*> sideelement_ve=sideelement_vec;
 	SideElement * current_elem= sideelement_i;
 	RayLine rayline_in;
 	RayLine rayline_out;
@@ -241,12 +469,14 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 	rayline_in=(*current_elem).sendRay();
 	while (charge && (k < _max_reflect_count) )
 	{
-		j=Which_SideelementIntersectedByLine( rayline_in, current_elem, sideelement_vec, p);
+		j=findFinalSideId(rayline_in, p, current_elem);
 
-		if(j==-1)
+		double hahah=MooseRandom::rand();
+
+		if(j==-1 || hahah<=sideelement_vec[j]->_transmissivity)
 			return -1;
 
-		else if(MooseRandom::rand()<sideelement_vec[j]->_absorptivity)
+		else if(hahah<=(sideelement_vec[j]->_absorptivity+sideelement_vec[j]->_transmissivity))
 		{
 //			cout << "Absorptivity" << endl;
 			charge=false;
@@ -254,7 +484,7 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 			break;
 		}
 
-		else if(MooseRandom::rand()<sideelement_vec[j]->_diffuse_reflectivity)
+		else if(MooseRandom::rand()<=sideelement_vec[j]->_diffuse_reflectivity)
 		{
 //			cout << "Diffuse_Reflectivity" << endl;
 			rayline_out=sideelement_vec[j]->diffuseReflectRay(ray_in,p);
@@ -277,6 +507,8 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 		}
 	}
 
+//	cout << "k:" << k << endl;
+
 	if(!charge)
 		return j_of_RDij;
 
@@ -285,4 +517,146 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 
 	else
 		return -1;
+}
+
+namespace Roshan
+{
+
+int sideIntersectedByLine(const Elem * elem, int not_side, RayLine & ray_line, Point & intersection_point)
+{
+	unsigned int n_sides = elem->n_sides();
+
+	// A Point to pass to the intersection method
+	//  Point intersection_point;
+
+	// Whether or not they intersect
+	bool intersect = false;
+
+	unsigned int dim = elem->dim();
+
+	for (unsigned int i=0; i<n_sides; i++)
+	{
+		if (static_cast<int>(i) == not_side) // Don't search the "not_side"
+			continue;
+
+		// Get a simplified side element
+		UniquePtr<Elem> side_elem = elem->side(i);
+
+		if (dim == 3)
+		{
+			// Make a plane out of the first three nodes on the side
+			Plane plane(side_elem->point(0), side_elem->point(1), side_elem->point(2));
+
+			// See if they intersect
+			intersect = ray_line.intersect(plane, intersection_point);
+		}
+		else if (dim == 2)
+		{
+			// Make a Line Segment out of the first two nodes on the side
+			RayLine ray_line_side(side_elem->point(0), side_elem->point(1), 1);
+
+			// See if they intersect
+			intersect = ray_line.intersect(ray_line_side, intersection_point);
+		}
+		else // 1D
+		{
+			// See if the line segment contains the point
+			intersect = ray_line.contains_point(side_elem->point(0));
+
+			// If it does then save off that one point as the intersection point
+			if (intersect)
+				intersection_point = side_elem->point(0);
+		}
+
+		if (intersect)
+			if (side_elem->contains_point(intersection_point, 1e-12))
+				return i;
+	}
+
+// Didn't find one
+	return -1;
+}
+
+/**
+ * Returns the side number for elem that neighbor is on
+ *
+ * Returns -1 if the neighbor can't be found to be a neighbor
+ */
+int sideNeighborIsOn(const UserDefinedElem * elem, UserDefinedElem * neighbor)
+{
+  unsigned int n_sides = neighbor->_elem->n_sides();
+
+  for (unsigned int i=0; i<n_sides; i++)
+  {
+	  if (neighbor->_userDefinedSideElem[i]->_right_element == elem)
+		  return i;
+  }
+
+  return -1;
+}
+
+int pointInWhichSide(const Elem * elem, Point & point)
+{
+	unsigned int n_sides = elem->n_sides();
+
+	for (unsigned int i=0; i<n_sides; i++)
+	{
+		if( (*(elem->side(i))).contains_point(point) )
+			return i;
+	}
+	return -1;
+}
+
+int findFinalSideId(RayLine & ray_line, Point & point, SideElement * sideelement)
+//Point findFinalSideId(RayLine & ray_line, const MeshBase & mesh, Point & point)
+{
+	int incoming_side = -1;
+	UserDefinedElem * neighbor;
+
+	const UserDefinedElem * first_elem = sideelement->_belong_to_which_elem;
+
+	if (!first_elem)
+	{
+		cout << "first_elem" << endl;
+		return -1;
+	}
+
+	else
+	{
+		const UserDefinedElem * current_elem = first_elem;
+		incoming_side = sideelement->_is_which_sideelem;
+//		cout << incoming_side << endl;
+		bool charge = true;
+		while (charge)
+		{
+			int intersected_side = sideIntersectedByLine(current_elem->_elem, incoming_side, ray_line, point);
+
+			if (intersected_side != -1) // -1 means that we didn't find any side
+			{
+				neighbor = current_elem->_userDefinedSideElem[intersected_side]->_right_element;
+
+//				cout << "neighbor" << endl;
+				if (neighbor)
+				{
+//					cout << "intersecedside:" << intersected_side << endl;
+					incoming_side = sideNeighborIsOn(current_elem, neighbor);
+					current_elem = neighbor;
+				}
+
+				else
+				{
+					return current_elem->_haveWhichSideElement[intersected_side];
+				}
+			}
+			else
+			{
+//				cout << "else" << endl;
+				/*如需增加介质，在此返回吸收单元*/
+				return -1;
+			}
+		}
+	}
+	return -1;
+}
+
 }

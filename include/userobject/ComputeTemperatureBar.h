@@ -5,8 +5,14 @@
 #include "RandomInterface.h"
 #include "SideElement.h"
 #include <vector>
+#include <set>
 using std::vector;
-using std::map;
+using std::set;
+
+namespace Roshan
+{
+int findFinalSideId(RayLine & ray_line, Point & point, SideElement * sideelement);
+}
 
 class RayLine;
 
@@ -38,9 +44,13 @@ protected :
 
 	int _max_reflect_count;
 	int _particle_count;
-	Real _absorptivity;
-	Real _diffuse_reflectivity;
-	Real _mirrors_reflectivity;
+	vector<Real> _transmissivity;
+	vector<Real> _absorptivity;
+	vector<Real> _diffuse_reflectivity;
+	vector<Real> _mirrors_reflectivity;
+
+	set<SubdomainID> _block_ids;
+	bool ElemHaveNeighborInBlock(Elem * elem, set<SubdomainID> block_ids);
 
 	VariableValue &_temperature;
 	vector<Real> temperature_pow4_bar;

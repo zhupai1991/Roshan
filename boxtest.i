@@ -1,9 +1,9 @@
 [Mesh]
   type = GeneratedMesh
   dim = 3
-  nx = 1
-  ny = 1
-  nz = 1
+  nx = 2
+  ny = 2
+  nz = 2
 []
 
 [Variables]
@@ -12,7 +12,7 @@
 []
 
 [UserObjects]
-  [./montecarlo_material]
+  [./tempBar]
     type = ComputeTemperatureBar
     boundary = '0 1 2 3 4 5'
     boundary_groups = '0 1 2 3 4, 5'
@@ -23,20 +23,10 @@
     absorptivity='1.0 0.5'
     diffuse_reflectivity='0.5 0.5'
     mirrors_reflectivity='0.5 0.5'
-    temperature = u
-  [../]
-[]
-
-[Materials]
-  [./material]
-    type = MonteCarloRadiationMaterial
-    temperature = u
-    boundary = '0'
-    monte_carlo = montecarlo_material
   [../]
 
-  
 []
+
 
 [Kernels]
   [./diff]
@@ -49,19 +39,13 @@
   [./left]
     type = DirichletBC
     variable = u
-    boundary = 0
-    value = 300
+    boundary = left
+    value = 0
   [../]
   [./right]
     type = DirichletBC
     variable = u
-    boundary = 1
-    value = 0
-  [../]
-  [./bottom]
-    type = HeatFluxBC
-    variable = u
-    boundary = 2
+    boundary = right
     value = 1
   [../]
 []

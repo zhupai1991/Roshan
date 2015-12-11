@@ -1,6 +1,6 @@
 [Mesh]
-  dim = 2
-  file = square_cavity_2D_test_20.exo
+  dim = 3
+  file = square_cavity_3D_20_onlyblock.exo
   uniform_refine = 0
 []
 [MeshModifiers]
@@ -20,13 +20,21 @@
     order = CONSTANT
     family = MONOMIAL
   [../]
+  [./process_id]
+    order = CONSTANT
+    family = MONOMIAL
+  [../]
 []
 
 [AuxKernels]
   [./heat_flux_aux_kernel]
     type = HeatFluxAuxKernel
     variable = heat_flux
-    boundary = 'in_left_1 in_bottom_1 in_right_1 in_top_1 in_left_0 in_bottom_0 in_right_0 in_top_0'
+    boundary = 'in_left in_bottom in_right in_top in_front in_back'
+  [../]
+  [./proc_id]
+    type= ProcessorIDAux
+    variable = process_id
   [../]
 []
 
@@ -53,7 +61,7 @@
   [./out300]
     type = HeatFluxBC
     variable = temp
-    boundary = 'out_left out_top out_bottom '
+    boundary = 'out_left out_top out_bottom out_front out_back'
     value = 0
   [../]
   [./out500]
@@ -65,7 +73,7 @@
   [./inner]
     type = HeatRadiationBC
     variable = temp
-    boundary = 'in_left_1 in_bottom_1 in_right_1 in_top_1 in_left_0 in_bottom_0 in_right_0 in_top_0'
+    boundary = 'in_left in_bottom in_right in_top in_front in_back'
   [../]
 
 []
@@ -74,10 +82,10 @@
 [UserObjects]
   [./montecarlo_userobject]
     type = ComputeTemperatureBar
-    boundary = 'in_left_1 in_bottom_1 in_right_1 in_top_1 in_left_0 in_bottom_0 in_right_0 in_top_0'
+    boundary = 'in_left in_bottom in_right in_top in_front in_back'
     max_reflect_count = 10
-    particle_count=10000
-    absorptivity=0.5
+    particle_count=100
+    absorptivity=1.0
     diffuse_reflectivity=0.5
     mirrors_reflectivity=0.5
     temperature = temp
@@ -85,23 +93,13 @@
 []
 
 [Materials]
-  [./material1]
+  [./material]
     type = HeatConductionMaterial
     temperature = temp
-    block = '1 2 3 4'
+    block = '1 2 3 4 5 6'
     t_list =  '100 200'
     roe_list = '400 400'
     k_list =  '50 50'
-    cp_list = '100 100'
-    sigma = 1
-  [../]
-[./material2]
-    type = HeatConductionMaterial
-    temperature = temp
-    block = 5
-    t_list =  '100 200'
-    roe_list = '400 400'
-    k_list =  '0.5 0.5'
     cp_list = '100 100'
     sigma = 1
   [../]
@@ -111,15 +109,15 @@
     temperature = temp
     monte_carlo = montecarlo_userobject
     epsilon = 1.0
-    boundary = 'in_left_1 in_bottom_1 in_right_1 in_top_1 in_left_0 in_bottom_0 in_right_0 in_top_0'
+    boundary = 'in_left in_bottom in_right in_top in_front in_back'
   [../]
 []
 
 [Executioner]
   type = Transient
   solve_type = newton
-  dt = 1E-02
-  num_steps = 1000
+  dt = 1E-01
+  num_steps = 200
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05
@@ -129,6 +127,7 @@
   petsc_options_value = 'hypre boomeramg'
 []
 
+
 [Outputs]
   [./console]
     type = Console
@@ -137,12 +136,7 @@
   [../]
   [./exodus]
     type = Exodus
-    perf_log = true
-    output_on = 'timestep_end'
-  [../]
-[./tecplot]
-    type = Tecplot
-    interval = 1000
+    interval = 1
     perf_log = true
     output_on = 'timestep_end'
   [../]
