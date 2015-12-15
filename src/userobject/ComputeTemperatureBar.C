@@ -155,21 +155,48 @@ void ComputeTemperatureBar::initialSetup()
 	UserDefinedMesh * mymesh = new UserDefinedMesh(_mesh);  //**************<--这里有new***************//
 
 	const BoundaryInfo &bnd_info = mesh.get_boundary_info();
-	int nelems = mesh.n_elem();
+	int meshelems = mesh.n_elem();
+//	MeshBase::const_element_iterator it  = mesh.active_subdomain_elements_begin(*_block_ids.begin());
+//    const MeshBase::const_element_iterator end_el = mesh.active_subdomain_elements_end(*_block_ids.begin());;
+//	for(; it != end_el ; it++ )
+//	{
+//		nelems++;
+//	}
+//	cout << "nelems:" << nelems << endl;
+//	mymesh->_userDefinedElem.resize(nelems);
 
-	mymesh->_userDefinedElem.resize(nelems);
-	for (int nelem =0; nelem<nelems; nelem++)
-	{
-		UserDefinedElem * newelem = new UserDefinedElem;    //**************<--这里有new***************//
-		mymesh->_userDefinedElem[nelem] = newelem;
-	}
+	map<dof_id_type, int> transform;
+	int myelemcount = 0;
 
-	for (int nelem =0; nelem<nelems; nelem++)
+	for (int nelem =0; nelem<meshelems; nelem++)
 	{
 		const Elem * elem = mesh.elem(nelem);
+		SubdomainID curr_subdomain = elem->subdomain_id();
+		if( ElemInBlock(curr_subdomain,_block_ids))
+		{
+			UserDefinedElem * newelem = new UserDefinedElem;    //**************<--这里有new***************//
+			newelem->_elem = elem;
+			transform[elem->id()] = myelemcount;
+//			cout << "transform:" << transform[elem->id()] << endl;
+			myelemcount++;
+			mymesh->_userDefinedElem.push_back(newelem);
+		}
+	}
+
+	int nelems = mymesh->_userDefinedElem.size();
+
+	for (int nelem =0; nelem<nelems; nelem++)
+	{
+//		const Elem * elem = mesh.elem(nelem);
+//		SubdomainID curr_subdomain = elem->subdomain_id();
+//		if (curr_subdomain != *_block_ids.begin())
+//		      continue;
+//		cout << "point:" << elem->centroid() << endl;
 		UserDefinedElem * myelem = mymesh->_userDefinedElem[nelem];
-		myelem->_elem = elem;
-		int nsides = mesh.elem(nelem)->n_sides();
+		const Elem * elem = myelem->_elem;
+//		int nsides = mesh.elem(nelem)->n_sides();
+		int nsides = elem->n_sides();
+//		cout << "nsides:" << nsides << endl;
 		myelem->_userDefinedSideElem.resize(nsides);
 		for (int nside=0; nside < nsides; nside++)
 		{
@@ -184,8 +211,13 @@ void ComputeTemperatureBar::initialSetup()
 			mysideelem->_elem = elem->side(nside).release();
 			mysideelem->_left_element = mymesh->_userDefinedElem[nelem];
 
+//			cout << "elem->neighbor(nside):" << elem->neighbor(nside) << endl;
 			if( ElemHaveNeighborInBlock(elem->neighbor(nside), _block_ids) )
-				mysideelem->_right_element = mymesh->_userDefinedElem[elem->neighbor(nside)->id()];
+//				mysideelem->_right_element = mymesh->_userDefinedElem[elem->neighbor(nside)->id()];
+			{
+//				cout << "transform:" << transform[elem->neighbor(nside)->id()] << endl;
+				mysideelem->_right_element = mymesh->_userDefinedElem[ transform[elem->neighbor(nside)->id()] ];
+			}
 
 			else
 			{
@@ -242,16 +274,20 @@ bool ComputeTemperatureBar::ElemHaveNeighborInBlock(Elem * elem, set<SubdomainID
 {
 	if (elem)
 	{
+//		cout << "elem->processor_id():" << elem->subdomain_id() << endl;
 		set<SubdomainID>::iterator it;
 		for(it = block_ids.begin(); it != block_ids.end(); it++)
 		{
-			if(elem->processor_id() == *it)
+//			cout << "it:" << *it << endl;
+			if(elem->subdomain_id() == *it)
 			{
 				return true;
 			}
 
 			else
+			{
 				continue;
+			}
 		}
 		return false;
 	}
@@ -260,6 +296,17 @@ bool ComputeTemperatureBar::ElemHaveNeighborInBlock(Elem * elem, set<SubdomainID
 	{
 		return false;
 	}
+}
+
+bool ComputeTemperatureBar::ElemInBlock(SubdomainID curr_SubdomainID, set<SubdomainID> block_ids)
+{
+	for (set<SubdomainID>::iterator it = block_ids.begin(); it != block_ids.end(); ++it)
+	{
+		if ( curr_SubdomainID != *it )
+			continue;
+		return true;
+	}
+	return false;
 }
 
 void ComputeTemperatureBar::initialize()
@@ -302,6 +349,11 @@ void ComputeTemperatureBar::computeRD()
 
 		SideElement * cse = _all_element[ii];
 
+//		for (int j=0;j<4;j++)
+//		{
+//		cout << _all_element[ii]->_belong_to_which_elem->_userDefinedSideElem[j]->_right_element << endl;
+//		}
+
 		for (int j=0;j<_particle_count;j++)
 		{
 			int j_of_RDij=-1;
@@ -317,12 +369,18 @@ void ComputeTemperatureBar::computeRD()
 
 		cout << endl << "单元计算结果：" << endl;
 		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
+		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
 
 		for (int i=0;i<_all_element.size();i++)
 		{
 			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
 			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
 		}
+
+//		for (int j=0;j<4;j++)
+//				{
+//					cout << "aiaiaiai:" << _all_element[ii]->_belong_to_which_elem->_haveWhichSideElement[j] << endl;
+//				}
 //		mooseError("产生随机位置时不支持的网格形状：");
 	}
 }
@@ -471,12 +529,12 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 	{
 		j=findFinalSideId(rayline_in, p, current_elem);
 
-		double hahah=MooseRandom::rand();
+		double rand_num=MooseRandom::rand();
 
-		if(j==-1 || hahah<=sideelement_vec[j]->_transmissivity)
+		if(j==-1 || rand_num<=sideelement_vec[j]->_transmissivity)
 			return -1;
 
-		else if(hahah<=(sideelement_vec[j]->_absorptivity+sideelement_vec[j]->_transmissivity))
+		else if(rand_num<=(sideelement_vec[j]->_absorptivity+sideelement_vec[j]->_transmissivity))
 		{
 //			cout << "Absorptivity" << endl;
 			charge=false;
@@ -630,12 +688,12 @@ int findFinalSideId(RayLine & ray_line, Point & point, SideElement * sideelement
 		while (charge)
 		{
 			int intersected_side = sideIntersectedByLine(current_elem->_elem, incoming_side, ray_line, point);
-
+//			cout << intersected_side << endl;
 			if (intersected_side != -1) // -1 means that we didn't find any side
 			{
 				neighbor = current_elem->_userDefinedSideElem[intersected_side]->_right_element;
 
-//				cout << "neighbor" << endl;
+//				cout << neighbor << endl;
 				if (neighbor)
 				{
 //					cout << "intersecedside:" << intersected_side << endl;
@@ -645,6 +703,8 @@ int findFinalSideId(RayLine & ray_line, Point & point, SideElement * sideelement
 
 				else
 				{
+//					cout << "intersecedside:" << intersected_side << endl;
+//					cout << "hhhh" << current_elem->_haveWhichSideElement[intersected_side] << endl;
 					return current_elem->_haveWhichSideElement[intersected_side];
 				}
 			}

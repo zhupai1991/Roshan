@@ -4,6 +4,7 @@
   nx = 1
   ny = 1
   nz = 1
+
 []
 
 [Variables]
@@ -15,12 +16,12 @@
   [./montecarlo_material]
     type = ComputeTemperatureBar
     boundary = '0 1 2 3 4 5'
-    boundary_groups = '0 1 2 3 4, 5'
+    boundary_groups = '0 1 2 3 4,5'
     block = '0'
     max_reflect_count = 10
-    particle_count=100000
-    transmissivity='0.0 0.5'
-    absorptivity='1.0 0.5'
+    particle_count=10000
+    transmissivity='0.0 1.0'
+    absorptivity='1.0 0.0'
     diffuse_reflectivity='0.5 0.5'
     mirrors_reflectivity='0.5 0.5'
     temperature = u

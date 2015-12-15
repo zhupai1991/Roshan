@@ -51,6 +51,7 @@ protected :
 
 	set<SubdomainID> _block_ids;
 	bool ElemHaveNeighborInBlock(Elem * elem, set<SubdomainID> block_ids);
+	bool ElemInBlock(SubdomainID curr_SubdomainID, set<SubdomainID> block_ids);
 
 	VariableValue &_temperature;
 	vector<Real> temperature_pow4_bar;
