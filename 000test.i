@@ -1,38 +1,39 @@
 [Mesh]
   dim = 2
-  file =  07test.exo
+  file =  0test_in.e
   uniform_refine = 0
   block_id = '1 2 3 4 5'
   block_name = 'left right bottom in top'
 []
+
 [MeshModifiers]
   [./scale]
     type = Transform
     transform = SCALE
-    vector_value = '1 1 1'
+    vector_value = '0.1 0.1 0.1'
   [../]
   [./SideSets1]
     type = SideSetsBetweenSubdomains
-    master_block = left
-    paired_block = in
+    master_block = in
+    paired_block = left
     new_boundary = in_left
   [../]
   [./SideSets2]
     type = SideSetsBetweenSubdomains
-    master_block = right
-    paired_block = in
+    master_block = in
+    paired_block = right
     new_boundary = in_right
   [../]
   [./SideSets3]
     type = SideSetsBetweenSubdomains
-    master_block = bottom
-    paired_block = in
+    master_block = in
+    paired_block = bottom
     new_boundary = in_bottom
   [../]
   [./SideSets4]
     type = SideSetsBetweenSubdomains
-    master_block = top
-    paired_block = in
+    master_block = in
+    paired_block = top
     new_boundary = in_top
   [../]
 []
@@ -68,10 +69,10 @@
     value = 300
     block = '1 2 3 5'
   [../]
-  [./temp_ic]
+  [./temp_ic1]
     variable = temp
     type = ConstantIC
-    value = 0
+    value = 300
     block = '4'
   [../]
 []
@@ -118,7 +119,7 @@
     boundary_groups = 'in_left in_right in_bottom in_top'
     block = 'in'
     max_reflect_count = 10
-    particle_count=10000
+    particle_count=100000
     transmissivity='0.0'
     absorptivity='1.0'
     diffuse_reflectivity='0.5'
@@ -152,7 +153,7 @@
   type = Transient
   solve_type = newton
   dt = 1E-02
-  num_steps = 1000
+  num_steps = 500
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05
@@ -171,7 +172,7 @@
   [./exodus]
     type = Exodus
     perf_log = true
-    output_on = 'timestep_end'
+    output_on = 'initial timestep_end'
   [../]
 [./tecplot]
     type = Tecplot

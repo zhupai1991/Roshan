@@ -349,11 +349,6 @@ void ComputeTemperatureBar::computeRD()
 
 		SideElement * cse = _all_element[ii];
 
-//		for (int j=0;j<4;j++)
-//		{
-//		cout << _all_element[ii]->_belong_to_which_elem->_userDefinedSideElem[j]->_right_element << endl;
-//		}
-
 		for (int j=0;j<_particle_count;j++)
 		{
 			int j_of_RDij=-1;
@@ -376,11 +371,6 @@ void ComputeTemperatureBar::computeRD()
 			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
 			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
 		}
-
-//		for (int j=0;j<4;j++)
-//				{
-//					cout << "aiaiaiai:" << _all_element[ii]->_belong_to_which_elem->_haveWhichSideElement[j] << endl;
-//				}
 //		mooseError("产生随机位置时不支持的网格形状：");
 	}
 }
