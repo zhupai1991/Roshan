@@ -6,6 +6,12 @@
 #include "libmesh/string_to_enum.h"
 #include "libmesh/quadrature_gauss.h"
 #include "libmesh/plane.h"
+//#include <mpi.h>
+//#include <omp.h>
+//#include "mutex"
+//#include "thread"
+//#include "semaphore.h"
+//#include "async"
 
 #include "RayLine.h"
 #include "MooseRandom.h"
@@ -267,7 +273,13 @@ void ComputeTemperatureBar::initialSetup()
 	temperature_pow3_bar.resize(_all_element.size(), 2.7e+7);
 	flux_radiation.resize(_all_element.size(), 0);
 	flux_radiation_jacobi.resize(_all_element.size(), 0);
+//	cout << "HHHHHHHHHHHHHHHHHH" << endl;
 	computeRD();
+//	if(processor_id() == 0)
+//	ompComputeRD();
+//	mpiComputeRD();
+//	printfunction();
+//	pthreadsComputeRD();
 }
 
 bool ComputeTemperatureBar::ElemHaveNeighborInBlock(Elem * elem, set<SubdomainID> block_ids)
@@ -330,7 +342,7 @@ void ComputeTemperatureBar::execute()
 	temp_pow3_bar /= _current_side_volume;
 	temperature_pow4_bar[findi] = temp_pow4_bar;
 	temperature_pow3_bar[findi] = temp_pow3_bar;
-//	cout <<  "side_element_centre:" << _all_element[findi]->_elem->centroid() << findi << "    T_pow4_bar:" << temperature_pow4_bar[findi] << endl;
+	cout <<  "side_element_centre:" << _all_element[findi]->_elem->centroid() << findi << "    T_pow4_bar:" << temperature_pow4_bar[findi] << endl;
 }
 
 void ComputeTemperatureBar::finalize()
@@ -375,10 +387,307 @@ void ComputeTemperatureBar::computeRD()
 	}
 }
 
+//void ComputeTemperatureBar::ompComputeRD()
+//{
+////#  pragma omp parallel for num_threads(n_processors()) \
+////	schedule(static,1)
+//	for(int ii  = 0; ii < _all_element.size(); ii++)
+//	{
+//		for (int i=0;i<_all_element.size();i++)
+//		{
+//			_all_element[ii]->_RD[ _all_element[i] ]=0;
+//		}
+//
+//		SideElement * cse = _all_element[ii];
+//
+//		for (int j=0;j<_particle_count;j++)
+//		{
+//			int j_of_RDij=-1;
+//
+//			j_of_RDij=Find_j_of_RDij(cse, _all_element);
+//
+//			if (j_of_RDij == -1)
+//				continue;
+//
+//			else
+//				_all_element[ii]->_RD[ _all_element[j_of_RDij] ]=_all_element[ii]->_RD[ _all_element[j_of_RDij] ]+1.0;
+//		}
+//
+////		cout << endl << "单元计算结果：" << endl;
+////		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
+////		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
+////
+////		for (int i=0;i<_all_element.size();i++)
+////		{
+////			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
+////			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
+////		}
+////		mooseError("产生随机位置时不支持的网格形状：");
+//	}
+//
+//	for(int ii  = 0; ii < _all_element.size(); ii++)
+//	{
+//		cout << endl << "单元计算结果：" << endl;
+//		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
+//		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
+//
+//		for (int i=0;i<_all_element.size();i++)
+//		{
+//			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
+//			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
+//		}
+//		//		mooseError("产生随机位置时不支持的网格形状：");
+//	}
+//}
+
+//void ComputeTemperatureBar::mpiComputeRD()
+//{
+//	int local_begin, local_end, local_n;
+//
+////	int my_rank, comm_sz;
+////	MPI_Comm comm;
+//
+////	MPI_Init(NULL, NULL);
+////	comm = MPI_COMM_WORLD;
+////	MPI_Comm_size(comm, &comm_sz);
+////	MPI_Comm_rank(comm, &my_rank);
+//
+//	int quotient = _particle_count/n_processors();
+//	int remainder = _particle_count%n_processors();
+//	if(processor_id() < remainder)
+//	{
+//		local_n = quotient + 1;
+//		local_begin = processor_id()*local_n;
+//		local_end = local_begin + local_n;
+//	}
+//	else
+//	{
+//		local_n = quotient;
+//		local_begin = processor_id()*local_n + remainder;
+//		local_end = local_begin + local_n;
+//	}
+//
+//#ifdef DEBUG
+//		printf("Proc %d > number of particle = %d, local number = %d\n", processor_id(), _particle_count, _local_particle_count);
+//#endif
+//
+//	for(int ii  = local_begin; ii < local_end; ii++)
+//	{
+//		for (int i=0;i<_all_element.size();i++)
+//		{
+//			_all_element[ii]->_RD[ _all_element[i] ]=0;
+//		}
+//
+//		SideElement * cse = _all_element[ii];
+//
+//		for (int j=0; j<_particle_count; j++)
+//		{
+//			int j_of_RDij=-1;
+//
+//			j_of_RDij=Find_j_of_RDij(cse, _all_element);
+//
+//			if (j_of_RDij == -1)
+//				continue;
+//
+//			else
+//				_all_element[ii]->_RD[ _all_element[j_of_RDij] ] = _all_element[ii]->_RD[ _all_element[j_of_RDij] ] + 1.0;
+//		}
+//	}
+////	MPI_Finalize();
+//
+////	for (int i=0;i<_all_element.size();i++)
+//	for(int i  = local_begin; i < local_end; i++)
+//	{
+//		cout << endl << "单元计算结果：" << endl;
+//		cout << "当前单元中心点：" << _all_element[i]->_elem->centroid() <<endl;
+//		cout << "normal:" << _all_element[i]->getSideElementNormal() << endl;
+//
+//		for (int j=0; j<_all_element.size(); j++)
+//		{
+//			_all_element[i]->_RD[ _all_element[j] ]=_all_element[i]->_RD[ _all_element[j] ]/_particle_count;
+//			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[i]->_RD[ _all_element[j] ] << endl;
+//		}
+//	}
+////	mooseError("产生随机位置时不支持的网格形状：");
+//}
+
+//void ComputeTemperatureBar::printfunction()
+//{
+//	for (int i=0;i<_all_element.size();i++)
+//	{
+//		cout << endl << "单元计算结果：" << endl;
+//		cout << "当前单元中心点：" << _all_element[i]->_elem->centroid() <<endl;
+//		cout << "normal:" << _all_element[i]->getSideElementNormal() << endl;
+//
+//		for (int j=0; j<_all_element.size(); j++)
+//		{
+//			_all_element[i]->_RD[ _all_element[j] ]=_all_element[i]->_RD[ _all_element[j] ]/_particle_count;
+//			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[i]->_RD[ _all_element[j] ] << endl;
+//		}
+//	}
+//}
+//
+//void ComputeTemperatureBar::mpiComputeRD()
+//{
+//	cout << "mpimpi" << endl;
+//	cout << "n_processors" << n_processors() <<endl;
+//	cout << "processor_id" << processor_id() <<endl;
+//
+//	//	MPI_Finalize();
+//
+////	mooseError("产生随机位置时不支持的网格形状：");
+//}
+
+//void ComputeTemperatureBar::mpiComputeRD()
+//{
+//	cout << "mpimpi" << endl;
+//
+//	int local_begin, local_end, local_n;
+//
+////	int my_rank, comm_sz;
+////	MPI_Comm comm;
+//
+////	MPI_Init(NULL, NULL);
+////	comm = MPI_COMM_WORLD;
+////	MPI_Comm_size(comm, &comm_sz);
+////	MPI_Comm_rank(comm, &my_rank);
+//
+//	int quotient = _particle_count/n_processors();
+//	int remainder = _particle_count%n_processors();
+//	if(processor_id() < remainder)
+//	{
+//		local_n = quotient + 1;
+//		local_begin = processor_id()*local_n;
+//		local_end = local_begin + local_n;
+//	}
+//	else
+//	{
+//		local_n = quotient;
+//		local_begin = processor_id()*local_n + remainder;
+//		local_end = local_begin + local_n;
+//	}
+//
+//#ifdef DEBUG
+//		printf("Proc %d > number of particle = %d, local number = %d\n", processor_id(), _particle_count, _local_particle_count);
+//#endif
+//
+//	for(int ii  = local_begin; ii < local_end; ii++)
+//	{
+//		for (int i=0;i<_all_element.size();i++)
+//		{
+//			_all_element[ii]->_RD[ _all_element[i] ]=0;
+//		}
+//
+//		SideElement * cse = _all_element[ii];
+//
+//		for (int j=0; j<_particle_count; j++)
+//		{
+//			int j_of_RDij=-1;
+//
+//			j_of_RDij=Find_j_of_RDij(cse, _all_element);
+//
+//			if (j_of_RDij == -1)
+//				continue;
+//
+//			else
+//				_all_element[ii]->_RD[ _all_element[j_of_RDij] ] = _all_element[ii]->_RD[ _all_element[j_of_RDij] ] + 1.0;
+//		}
+//	}
+////	MPI_Finalize();
+//
+////	mooseError("产生随机位置时不支持的网格形状：");
+//}
+
+//void* ComputeTemperatureBar::pth_com_RD(void* rank)
+//{
+//	long my_rank = (long) rank;
+//
+//	int thread_count = n_processors();
+//	int local_begin, local_end, local_n;
+//	int quotient = _particle_count/thread_count;
+//	int remainder = _particle_count%thread_count;
+//	if(my_rank < remainder)
+//	{
+//		local_n = quotient + 1;
+//		local_begin = my_rank*local_n;
+//		local_end = local_begin + local_n;
+//	}
+//	else
+//	{
+//		local_n = quotient;
+//		local_begin = my_rank*local_n + remainder;
+//		local_end = local_begin + local_n;
+//	}
+//
+//	for(int ii  = local_begin; ii < local_end; ii++)
+//	{
+//		for (int i=0;i<_all_element.size();i++)
+//		{
+//			_all_element[ii]->_RD[ _all_element[i] ]=0;
+//		}
+//
+//		SideElement * cse = _all_element[ii];
+//
+//		for (int j=0; j<_particle_count; j++)
+//		{
+//			int j_of_RDij=-1;
+//
+//			j_of_RDij=Find_j_of_RDij(cse, _all_element);
+//
+//			if (j_of_RDij == -1)
+//				continue;
+//
+//			else
+//				_all_element[ii]->_RD[ _all_element[j_of_RDij] ] = _all_element[ii]->_RD[ _all_element[j_of_RDij] ] + 1.0;
+//		}
+//	}
+//
+//	return NULL;
+//}
+//
+//void ComputeTemperatureBar::pthreadsComputeRD()
+//{
+//	long thread;
+//	pthread_t * thread_handles;
+//
+////	thread_count = strtol(argv[1], NULL, 10);
+//	int thread_count = n_processors();
+//
+//	thread_handles = malloc(thread_count*sizeof(pthread_t));
+//
+//	for(thread = 0; thread < thread_count; thread++)
+//		pthread_create(&thread_handles[thread], NULL, pth_com_RD, (void*) thread);
+//
+//	for(thread = 0; thread < thread_count; thread++)
+//		pthread_join(thread_handles[thread], NULL);
+//
+//	free(thread_handles);
+//
+//	for (int i=0;i<_all_element.size();i++)
+//	{
+//		cout << endl << "单元计算结果：" << endl;
+//		cout << "当前单元中心点：" << _all_element[i]->_elem->centroid() <<endl;
+//		cout << "normal:" << _all_element[i]->getSideElementNormal() << endl;
+//
+//		for (int j=0; j<_all_element.size(); j++)
+//		{
+//			_all_element[i]->_RD[ _all_element[j] ]=_all_element[i]->_RD[ _all_element[j] ]/_particle_count;
+//			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[i]->_RD[ _all_element[j] ] << endl;
+//		}
+//	}
+////		mooseError("产生随机位置时不支持的网格形状：");
+//}
+
 void ComputeTemperatureBar::computeRadiationFlux()
 {
 	Real epsilon=5.67e-8;
 	Real Flux_Rad=0.0;
+
+	cout << "hhh" << endl;
+	for (int i=0;i<_all_element.size();i++)
+	{
+		cout <<  "side_element_centre:" << _all_element[i]->_elem->centroid() << i << "    T_pow4_bar:" << temperature_pow4_bar[i] << endl;
+	}
 
 	for (int i=0;i<_all_element.size();i++)
 	{

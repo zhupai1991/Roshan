@@ -12,28 +12,28 @@
     transform = SCALE
     vector_value = '0.1 0.1 0.1'
   [../]
-  [./SideSets1]
+    [./SideSets1]
     type = SideSetsBetweenSubdomains
-    master_block = in
-    paired_block = left
+    master_block = left
+    paired_block = in
     new_boundary = in_left
   [../]
   [./SideSets2]
     type = SideSetsBetweenSubdomains
-    master_block = in
-    paired_block = right
+    master_block = right
+    paired_block = in
     new_boundary = in_right
   [../]
   [./SideSets3]
     type = SideSetsBetweenSubdomains
-    master_block = in
-    paired_block = bottom
+    master_block = bottom
+    paired_block = in
     new_boundary = in_bottom
   [../]
   [./SideSets4]
     type = SideSetsBetweenSubdomains
-    master_block = in
-    paired_block = top
+    master_block = top
+    paired_block = in
     new_boundary = in_top
   [../]
 []
@@ -119,7 +119,7 @@
     boundary_groups = 'in_left in_right in_bottom in_top'
     block = 'in'
     max_reflect_count = 10
-    particle_count=100000
+    particle_count=10000
     transmissivity='0.0'
     absorptivity='1.0'
     diffuse_reflectivity='0.5'
@@ -153,7 +153,7 @@
   type = Transient
   solve_type = newton
   dt = 1E-02
-  num_steps = 500
+  num_steps = 1000
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05

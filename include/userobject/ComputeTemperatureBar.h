@@ -39,6 +39,11 @@ protected :
 
 	virtual void computeRadiationFlux();
 	void computeRD();
+//	void ompComputeRD();
+//	void mpiComputeRD();
+//	void printfunction();
+//	void pthreadsComputeRD();
+//	void* pth_com_RD(void* rank);
 
 	vector<SideElement*> _all_element;
 

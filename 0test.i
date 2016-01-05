@@ -1,7 +1,7 @@
 [Mesh]
   dim = 2
   file = 07test.exo
-  uniform_refine = 4
+  uniform_refine = 2
   block_id = '1 2 3 4 5'
   block_name = 'left right bottom in top'
 []
