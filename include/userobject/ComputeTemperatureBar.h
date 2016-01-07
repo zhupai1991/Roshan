@@ -38,8 +38,8 @@ protected :
 	virtual void threadJoin(const UserObject & uo){};
 
 	virtual void computeRadiationFlux();
-	void computeRD();
-//	void ompComputeRD();
+//	void computeRD();
+	void ompComputeRD();
 //	void mpiComputeRD();
 //	void printfunction();
 //	void pthreadsComputeRD();

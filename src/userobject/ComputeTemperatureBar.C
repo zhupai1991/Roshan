@@ -269,14 +269,13 @@ void ComputeTemperatureBar::initialSetup()
 			}
 		}
 	}
-	temperature_pow4_bar.resize(_all_element.size(), 8.1e+9);
-	temperature_pow3_bar.resize(_all_element.size(), 2.7e+7);
+	temperature_pow4_bar.resize(_all_element.size(), 0);
+	temperature_pow3_bar.resize(_all_element.size(), 0);
 	flux_radiation.resize(_all_element.size(), 0);
 	flux_radiation_jacobi.resize(_all_element.size(), 0);
-//	cout << "HHHHHHHHHHHHHHHHHH" << endl;
-	computeRD();
+//	computeRD();
 //	if(processor_id() == 0)
-//	ompComputeRD();
+	ompComputeRD();
 //	mpiComputeRD();
 //	printfunction();
 //	pthreadsComputeRD();
@@ -342,7 +341,7 @@ void ComputeTemperatureBar::execute()
 	temp_pow3_bar /= _current_side_volume;
 	temperature_pow4_bar[findi] = temp_pow4_bar;
 	temperature_pow3_bar[findi] = temp_pow3_bar;
-	cout <<  "side_element_centre:" << _all_element[findi]->_elem->centroid() << findi << "    T_pow4_bar:" << temperature_pow4_bar[findi] << endl;
+//	cout <<  "side_element_centre:" << _all_element[findi]->_elem->centroid() << findi << "    T_pow4_bar:" << temperature_pow4_bar[findi] << endl;
 }
 
 void ComputeTemperatureBar::finalize()
@@ -350,47 +349,8 @@ void ComputeTemperatureBar::finalize()
 	computeRadiationFlux();
 }
 
-void ComputeTemperatureBar::computeRD()
-{
-	for(int ii  = 0; ii < _all_element.size(); ii++)
-	{
-		for (int i=0;i<_all_element.size();i++)
-		{
-			_all_element[ii]->_RD[ _all_element[i] ]=0;
-		}
-
-		SideElement * cse = _all_element[ii];
-
-		for (int j=0;j<_particle_count;j++)
-		{
-			int j_of_RDij=-1;
-
-			j_of_RDij=Find_j_of_RDij(cse, _all_element);
-
-			if (j_of_RDij == -1)
-				continue;
-
-			else
-				_all_element[ii]->_RD[ _all_element[j_of_RDij] ]=_all_element[ii]->_RD[ _all_element[j_of_RDij] ]+1.0;
-		}
-
-		cout << endl << "单元计算结果：" << endl;
-		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
-		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
-
-		for (int i=0;i<_all_element.size();i++)
-		{
-			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
-			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
-		}
-//		mooseError("产生随机位置时不支持的网格形状：");
-	}
-}
-
-//void ComputeTemperatureBar::ompComputeRD()
+//void ComputeTemperatureBar::computeRD()
 //{
-////#  pragma omp parallel for num_threads(n_processors()) \
-////	schedule(static,1)
 //	for(int ii  = 0; ii < _all_element.size(); ii++)
 //	{
 //		for (int i=0;i<_all_element.size();i++)
@@ -413,20 +373,6 @@ void ComputeTemperatureBar::computeRD()
 //				_all_element[ii]->_RD[ _all_element[j_of_RDij] ]=_all_element[ii]->_RD[ _all_element[j_of_RDij] ]+1.0;
 //		}
 //
-////		cout << endl << "单元计算结果：" << endl;
-////		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
-////		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
-////
-////		for (int i=0;i<_all_element.size();i++)
-////		{
-////			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
-////			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
-////		}
-////		mooseError("产生随机位置时不支持的网格形状：");
-//	}
-//
-//	for(int ii  = 0; ii < _all_element.size(); ii++)
-//	{
 //		cout << endl << "单元计算结果：" << endl;
 //		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
 //		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
@@ -436,9 +382,62 @@ void ComputeTemperatureBar::computeRD()
 //			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
 //			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
 //		}
-//		//		mooseError("产生随机位置时不支持的网格形状：");
+////		mooseError("产生随机位置时不支持的网格形状：");
 //	}
 //}
+
+void ComputeTemperatureBar::ompComputeRD()
+{
+#  pragma omp parallel for num_threads(n_processors()) \
+	schedule(static,1)
+	for(int ii  = 0; ii < _all_element.size(); ii++)
+	{
+		for (int i=0;i<_all_element.size();i++)
+		{
+			_all_element[ii]->_RD[ _all_element[i] ]=0;
+		}
+
+		SideElement * cse = _all_element[ii];
+
+		for (int j=0;j<_particle_count;j++)
+		{
+			int j_of_RDij=-1;
+
+			j_of_RDij=Find_j_of_RDij(cse, _all_element);
+
+			if (j_of_RDij == -1)
+				continue;
+
+			else
+				_all_element[ii]->_RD[ _all_element[j_of_RDij] ]=_all_element[ii]->_RD[ _all_element[j_of_RDij] ]+1.0;
+		}
+
+//		cout << endl << "单元计算结果：" << endl;
+//		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
+//		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
+//
+//		for (int i=0;i<_all_element.size();i++)
+//		{
+//			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
+//			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
+//		}
+//		mooseError("产生随机位置时不支持的网格形状：");
+	}
+
+	for(int ii  = 0; ii < _all_element.size(); ii++)
+	{
+		cout << endl << "单元计算结果：" << endl;
+		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
+		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
+
+		for (int i=0;i<_all_element.size();i++)
+		{
+			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
+			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
+		}
+		//		mooseError("产生随机位置时不支持的网格形状：");
+	}
+}
 
 //void ComputeTemperatureBar::mpiComputeRD()
 //{
@@ -683,10 +682,9 @@ void ComputeTemperatureBar::computeRadiationFlux()
 	Real epsilon=5.67e-8;
 	Real Flux_Rad=0.0;
 
-	cout << "hhh" << endl;
-	for (int i=0;i<_all_element.size();i++)
 	{
-		cout <<  "side_element_centre:" << _all_element[i]->_elem->centroid() << i << "    T_pow4_bar:" << temperature_pow4_bar[i] << endl;
+		_communicator.sum<Real>(temperature_pow4_bar);
+		_communicator.sum<Real>(temperature_pow3_bar);
 	}
 
 	for (int i=0;i<_all_element.size();i++)
@@ -701,6 +699,12 @@ void ComputeTemperatureBar::computeRadiationFlux()
 		flux_radiation[i]= epsilon*Flux_Rad/_all_element[i]->_elem->volume();
 		flux_radiation_jacobi[i]= 4*epsilon*(_all_element[i]->_RD[ _all_element[i] ])*_all_element[i]->_absorptivity*temperature_pow3_bar[i];
 //		cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << i << "      Flux:" << flux_radiation[i]  << endl;
+	}
+
+	for (int i=0;i<_all_element.size();i++)
+	{
+		temperature_pow4_bar[i] = 0;
+		temperature_pow3_bar[i] = 0;
 	}
 }
 
