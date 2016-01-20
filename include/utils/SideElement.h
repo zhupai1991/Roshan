@@ -27,6 +27,7 @@ public:
 	const Elem * _elem;
 
 	map<SideElement*, Real> _RD;
+	vector<Real> local_RD;
 	UserDefinedElem* _belong_to_which_elem;
 	int _is_which_sideelem;
 

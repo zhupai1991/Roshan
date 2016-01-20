@@ -119,7 +119,7 @@
     boundary_groups = 'in_left in_right in_bottom in_top'
     block = 'in'
     max_reflect_count = 10
-    particle_count=10000
+    particle_count=1000
     transmissivity='0.0'
     absorptivity='1.0'
     diffuse_reflectivity='0.5'

@@ -46,7 +46,7 @@ HeatFluxMaterial::HeatFluxMaterial(const InputParameters & parameters) :
 		vector<Real> src_vals;
 		for(int i = 0; i < _num_pts; ++i)
 		{
-			src_vals.push_back(_src_qc[t][i]);
+			src_vals.push_back(_src_qc[t][i]*_fluxcoff);
 			src_vals.push_back(_src_ts[t][i]);
 		}
 

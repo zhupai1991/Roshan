@@ -39,7 +39,8 @@ protected :
 
 	virtual void computeRadiationFlux();
 //	void computeRD();
-	void ompComputeRD();
+	void newcomputeRD(int pppppp);
+//	void ompComputeRD();
 //	void mpiComputeRD();
 //	void printfunction();
 //	void pthreadsComputeRD();

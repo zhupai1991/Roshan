@@ -273,9 +273,56 @@ void ComputeTemperatureBar::initialSetup()
 	temperature_pow3_bar.resize(_all_element.size(), 0);
 	flux_radiation.resize(_all_element.size(), 0);
 	flux_radiation_jacobi.resize(_all_element.size(), 0);
+
 //	computeRD();
+	_communicator.barrier();
+
+	for (int ii=0;ii<_all_element.size();ii++)
+	{
+		_all_element[ii]->local_RD.resize(_all_element.size(), 0);
+		for (int i=0;i<_all_element.size();i++)
+		{
+			_all_element[ii]->_RD[ _all_element[i] ]=0;
+		}
+	}
+
+	int local_p;
+	int quotient = _particle_count/n_processors();
+	int remainder = _particle_count%n_processors();
+	if(processor_id() < remainder)
+	{
+		local_p = quotient + 1;
+//		local_begin = processor_id()*local_n;
+//		local_end = local_begin + local_n;
+	}
+	else
+	{
+		local_p = quotient;
+//		local_begin = processor_id()*local_n + remainder;
+//		local_end = local_begin + local_n;
+	}
+
+	newcomputeRD(local_p);
+
+	for(int i  = 0; i < _all_element.size(); i++)
+	{
+		_communicator.sum<Real>(_all_element[i]->local_RD);
+	}
+
+	_communicator.barrier();
+
+	for (int ii=0;ii<_all_element.size();ii++)
+	{
+//		_all_element[ii]->local_RD.resize(_all_element.size(), 0);
+		for (int i=0;i<_all_element.size();i++)
+		{
+			_all_element[ii]->_RD[ _all_element[i] ] = _all_element[ii]->local_RD[i];
+		}
+	}
+
+	_communicator.barrier();
 //	if(processor_id() == 0)
-	ompComputeRD();
+//	ompComputeRD();
 //	mpiComputeRD();
 //	printfunction();
 //	pthreadsComputeRD();
@@ -386,20 +433,14 @@ void ComputeTemperatureBar::finalize()
 //	}
 //}
 
-void ComputeTemperatureBar::ompComputeRD()
+void ComputeTemperatureBar::newcomputeRD(int pppppp)
 {
-#  pragma omp parallel for num_threads(n_processors()) \
-	schedule(static,1)
+//	MooseRandom::seed( pow(2,24)*processor_id() );
 	for(int ii  = 0; ii < _all_element.size(); ii++)
 	{
-		for (int i=0;i<_all_element.size();i++)
-		{
-			_all_element[ii]->_RD[ _all_element[i] ]=0;
-		}
-
 		SideElement * cse = _all_element[ii];
 
-		for (int j=0;j<_particle_count;j++)
+		for (int j=0;j<pppppp;j++)
 		{
 			int j_of_RDij=-1;
 
@@ -409,9 +450,57 @@ void ComputeTemperatureBar::ompComputeRD()
 				continue;
 
 			else
-				_all_element[ii]->_RD[ _all_element[j_of_RDij] ]=_all_element[ii]->_RD[ _all_element[j_of_RDij] ]+1.0;
+				_all_element[ii]->local_RD[j_of_RDij]=_all_element[ii]->local_RD[j_of_RDij]+1.0;
 		}
 
+		for (int i=0;i<_all_element.size();i++)
+		{
+			_all_element[ii]->local_RD[i]=_all_element[ii]->local_RD[i]/_particle_count;
+		}
+//		mooseError("产生随机位置时不支持的网格形状：");
+	}
+}
+
+//void ComputeTemperatureBar::ompComputeRD()
+//{
+//#  pragma omp parallel for num_threads(n_processors()) \
+//	schedule(static,1)
+//	for(int ii  = 0; ii < _all_element.size(); ii++)
+//	{
+//		for (int i=0;i<_all_element.size();i++)
+//		{
+//			_all_element[ii]->_RD[ _all_element[i] ]=0;
+//		}
+//
+//		SideElement * cse = _all_element[ii];
+//
+//		for (int j=0;j<_particle_count;j++)
+//		{
+//			int j_of_RDij=-1;
+//
+//			j_of_RDij=Find_j_of_RDij(cse, _all_element);
+//
+//			if (j_of_RDij == -1)
+//				continue;
+//
+//			else
+//				_all_element[ii]->_RD[ _all_element[j_of_RDij] ]=_all_element[ii]->_RD[ _all_element[j_of_RDij] ]+1.0;
+//		}
+//
+////		cout << endl << "单元计算结果：" << endl;
+////		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
+////		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
+////
+////		for (int i=0;i<_all_element.size();i++)
+////		{
+////			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
+////			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
+////		}
+////		mooseError("产生随机位置时不支持的网格形状：");
+//	}
+//
+//	for(int ii  = 0; ii < _all_element.size(); ii++)
+//	{
 //		cout << endl << "单元计算结果：" << endl;
 //		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
 //		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
@@ -421,23 +510,9 @@ void ComputeTemperatureBar::ompComputeRD()
 //			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
 //			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
 //		}
-//		mooseError("产生随机位置时不支持的网格形状：");
-	}
-
-	for(int ii  = 0; ii < _all_element.size(); ii++)
-	{
-		cout << endl << "单元计算结果：" << endl;
-		cout << "当前单元中心点：" << _all_element[ii]->_elem->centroid() <<endl;
-		cout << "normal:" << _all_element[ii]->getSideElementNormal() << endl;
-
-		for (int i=0;i<_all_element.size();i++)
-		{
-			_all_element[ii]->_RD[ _all_element[i] ]=_all_element[ii]->_RD[ _all_element[i] ]/_particle_count;
-			cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << "        RD:" << _all_element[ii]->_RD[ _all_element[i] ] << endl;
-		}
-		//		mooseError("产生随机位置时不支持的网格形状：");
-	}
-}
+//		//		mooseError("产生随机位置时不支持的网格形状：");
+//	}
+//}
 
 //void ComputeTemperatureBar::mpiComputeRD()
 //{
