@@ -15,7 +15,7 @@ class UserDefinedMesh
 public:
 //	UserDefinedElem * Pointlocator( Point & point);
 	UserDefinedMesh(const MooseMesh &mesh);
-	vector<UserDefinedElem * > _userDefinedElem;
+	vector<UserDefinedElem> _userDefinedElem;
 
 	const MooseMesh &_mesh;
 

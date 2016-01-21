@@ -12,7 +12,7 @@ using libMesh::Elem;
 class UserDefinedElem
 {
 public:
-	vector<UserDefinedSideElem * > _userDefinedSideElem;
+	vector<UserDefinedSideElem> _userDefinedSideElem;
 	vector<int> _haveWhichSideElement;
     const Elem * _elem;
 

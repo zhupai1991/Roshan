@@ -18,124 +18,73 @@
     variable = temp
     type = ConstantIC
     value = 300
+    block = '0'
   [../]
 []
 
-[AuxVariables]
-  [./sigma]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
-[]
-
-[AuxKernels]
-  [./aukernel_for_sigma]
-    type = GetSigma
-    variable = sigma
-  []
-[]
 [Kernels]
   [./temporal]
     type = HeatConductionTimeDerivative
     variable = temp
+    block = '0'
   [../]
   [./diff]
     type = HeatConductionKernel
     variable = temp
-  [../]
-[]
-
-[UserObjects]
-  [./montecarlo_material]
-    type = ComputeTemperatureBar
-    boundary = '1'
-    max_reflect_count = 10
-    particle_count=10000
-    absorptivity=1.0
-    diffuse_reflectivity=0.5
-    mirrors_reflectivity=0.5
-    temperature = temp
+    block = '0'
   [../]
 []
 
 [BCs]
-  [./left]
+  [./out300]
     type = HeatFluxBC
     variable = temp
-    boundary = left
+    boundary = '1 2 3'
     value = 0
-    qc = 0.01
-    #data_file = qc.dat
   [../]
-  [./right]
-    type = HeatRadiationBC
+  [./out500]
+    type = HeatFluxBC
     variable = temp
-    boundary = right
-    epsilon = 1e-6
-    tw0 = 300
-    scale = '1 1 1'
-    sigma = sigma
-    #sigma = 0.1
-    flux_data = qc.dat
-    fluxcoff = 1
-  [../]
-  [./top]
-    type = DirichletBC
-    variable = temp
-    boundary = top
-    value = 2000
-  [../]
- [./bottom]
-    type = DirichletBC
-    variable = temp
-    boundary = bottom
-    value = 2000
+    boundary = '0'
+    value = 1000000
   [../]
 []
 
 [Materials]
-  [./material]
+  [./material1]
     type = HeatConductionMaterial
     temperature = temp
-    block = 0
-    t_list = '0 0.5 1'
-    roe_list = '20 20 20'
-    k_list = '1 1 1'
-    cp_list = '1 1 1'
-    property_file = 'k(T1).data'
+    block = '0'
+    t_list =  '100 200'
+    roe_list = '400 400'
+    k_list =  '5 5'
+    cp_list = '100 100'
+    sigma = 1
   [../]
-[]
 
 [Executioner]
   type = Transient
   solve_type = newton
   dt = 1E-02
-  num_steps = 1
+  num_steps = 1000
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05
   l_max_its = 10
   nl_max_its = 10
   petsc_options_iname = '-pc_type -pc_hypre_type'
-  petsc_options_value = 'hypre boomeramg'
+  petsc_options_value = 'bjacobi boomeramg'
 []
 
-[Postprocessors]
-  [./run_time]
-    type = RunTime
-    time_type = active
-  [../]
-[]
 [Outputs]
-  [./exodus]
-    type = Exodus
-    #refinements = 1
-    output_on = 'initial timestep_end'
-  [../]
   [./console]
     type = Console
     perf_log = true
     output_on = 'timestep_end failed nonlinear linear'
   [../]
+  [./exodus]
+    type = Exodus
+    perf_log = true
+    output_on = 'initial timestep_end'
+  [../]
 []
-

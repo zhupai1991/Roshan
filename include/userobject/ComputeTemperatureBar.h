@@ -22,8 +22,8 @@ public RandomInterface
 {
 public:
 	ComputeTemperatureBar(const InputParameters & parameters);
-	int Which_SideelementIntersectedByLine(RayLine& ray, SideElement * sideelement_i, vector<SideElement*> sideelement_vec, Point & point);
-	int Find_j_of_RDij(SideElement * sideelement_i, vector<SideElement*> sideelement_vec);
+	int Which_SideelementIntersectedByLine(RayLine& ray, SideElement * sideelement_i, vector<SideElement> &sideelement_vec, Point & point);
+	int Find_j_of_RDij(SideElement * sideelement_i, vector<SideElement> &sideelement_vec);
 	int Find_i(const Elem * elem) const;
 	Real getTemBar(int i) const {return temperature_pow4_bar[i];}
 	Real getRadiationFlux(int i)  const  {return flux_radiation[i];}
@@ -46,7 +46,7 @@ protected :
 //	void pthreadsComputeRD();
 //	void* pth_com_RD(void* rank);
 
-	vector<SideElement*> _all_element;
+	vector<SideElement> _all_element;
 
 	int _max_reflect_count;
 	int _particle_count;

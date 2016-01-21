@@ -153,17 +153,18 @@
   type = Transient
   solve_type = newton
   dt = 1E-02
-  num_steps = 1000
+  num_steps = 1
 
   l_tol = 1e-04
   nl_rel_tol = 1e-05
   l_max_its = 10
   nl_max_its = 10
-  petsc_options_iname = '-pc_type -pc_hypre_type'
-  petsc_options_value = 'hypre boomeramg'
+  petsc_options_iname = '-pc_type '
+  petsc_options_value = 'jacobi '
 []
 
 [Outputs]
+ # checkpoint = true
   [./console]
     type = Console
     perf_log = true
