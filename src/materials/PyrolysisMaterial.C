@@ -1,5 +1,5 @@
 #include "PyrolysisMaterial.h"
-
+#include "libmesh/quadrature.h"
 #include<iostream>
 using std::cout;
 using std::endl;

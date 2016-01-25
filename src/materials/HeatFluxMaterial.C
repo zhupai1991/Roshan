@@ -2,6 +2,7 @@
 #include "libmesh/system.h"
 #include "libmesh/radial_basis_interpolation.h"
 #include<iostream>
+#include "libmesh/quadrature.h"
 using std::cout;
 using std::endl;
 

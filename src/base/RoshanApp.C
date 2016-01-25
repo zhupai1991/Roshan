@@ -11,7 +11,7 @@
 #include "AppFactory.h"
 #include "ActionFactory.h"
 #include "Syntax.h"
-
+#include "MooseSyntax.h"
 #include "TestIC.h"
 #include "strange.h"
 

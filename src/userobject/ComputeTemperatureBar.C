@@ -6,6 +6,7 @@
 #include "libmesh/string_to_enum.h"
 #include "libmesh/quadrature_gauss.h"
 #include "libmesh/plane.h"
+#include "MooseMesh.h"
 //#include <mpi.h>
 //#include <omp.h>
 //#include "mutex"
@@ -19,7 +20,7 @@
 #include "UserDefinedElem.h"
 #include "UserDefinedSideElem.h"
 
-#include "MemData.h"
+//#include "MemData.h"
 using namespace std;
 using namespace Roshan;
 
@@ -62,11 +63,11 @@ ComputeTemperatureBar::ComputeTemperatureBar(const InputParameters & parameters)
 
 ComputeTemperatureBar::~ComputeTemperatureBar()
 {
-//	for(int i=0; i<_all_element.size(); i++)
-//	{
+	for(int i=0; i<_all_element.size(); i++)
+	{
 //		if(_all_element[i])
-//			delete _all_element[i];
-//	}
+		delete _all_element[i]._elem;
+	}
 }
 
 //void ComputeTemperatureBar::initialSetup()
@@ -193,6 +194,7 @@ void ComputeTemperatureBar::initialSetup()
 	int nelems = mymesh._userDefinedElem.size();
 //	SideElement newsideelement(NULL, Point(0,0,0), _transmissivity[0], _absorptivity[0], _diffuse_reflectivity[0], _mirrors_reflectivity[0]);
 //    _all_element.resize(64,newsideelement);
+//    _all_element.reserve(64);
 	for (int nelem =0; nelem<nelems; nelem++)
 	{
 //		const Elem * elem = mesh.elem(nelem);
@@ -231,7 +233,7 @@ void ComputeTemperatureBar::initialSetup()
 				Elem *elem_side = elem->build_side(nside).release();
 				int bnd_id = bnd_info.boundary_id(elem, nside);
 
-				int bnd_in_which_group =0; // -1;
+				int bnd_in_which_group =-1;
 				for(int i = 0; i < group.size(); ++i)
 				{
 					for(int j = 0; j < group_set[i].size(); ++j)
@@ -244,8 +246,7 @@ void ComputeTemperatureBar::initialSetup()
 					}
 				}
 
-
-			if(find(boundary_ids.begin(), boundary_ids.end(), bnd_id) == boundary_ids.end())
+				if(find(boundary_ids.begin(), boundary_ids.end(), bnd_id) == boundary_ids.end())
 				{
 					delete elem_side;
 					continue;

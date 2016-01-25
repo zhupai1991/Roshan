@@ -12,8 +12,8 @@ class RayLine;
 class ComputeTemperatureBar;
 
 class MonteCarloRadiationMaterial :
-		public Material,
-		public RandomInterface
+		public Material
+//		public RandomInterface
 {
 public:
 	MonteCarloRadiationMaterial(const InputParameters & parameters);

@@ -6,11 +6,11 @@
 #include "libmesh/string_to_enum.h"
 #include "libmesh/quadrature_gauss.h"
 #include "libmesh/plane.h"
-
+#include "libmesh/quadrature.h"
 #include "ComputeTemperatureBar.h"
-
+#include "ComputeTemperatureBar.h"
 #include "RayLine.h"
-#include "MooseRandom.h"
+#include "Assembly.h"
 
 using namespace std;
 
@@ -27,7 +27,7 @@ InputParameters validParams<MonteCarloRadiationMaterial>()
 
 MonteCarloRadiationMaterial::MonteCarloRadiationMaterial(const InputParameters & parameters) :
       Material(parameters),
-	  RandomInterface(parameters, *parameters.get<FEProblem *>("_fe_problem"), parameters.get<THREAD_ID>("_tid"), false),
+//	  RandomInterface(parameters, *parameters.get<FEProblem *>("_fe_problem"), parameters.get<THREAD_ID>("_tid"), false),
 	  _current_side_elem(_assembly.sideElem()),
 	  _temperature(coupledValue("temperature")),
 	  _uo((getUserObject<ComputeTemperatureBar>("monte_carlo"))),

@@ -1,5 +1,6 @@
 #include "HeatConductionMaterial.h"
 #include<iostream>
+#include "libmesh/quadrature.h"
 using std::cout;
 using std::endl;
 
