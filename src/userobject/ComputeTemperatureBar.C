@@ -216,7 +216,7 @@ void ComputeTemperatureBar::initialSetup()
 		for (int nside=0; nside < nsides; nside++)
 		{
 			UserDefinedSideElem * mysideelem = &(mymesh._userDefinedElem[nelem]._userDefinedSideElem[nside]);
-			mysideelem->_elem = elem->side(nside).release();
+			mysideelem->_elem = elem->side(nside).get();//release();
 			mysideelem->_left_element = &(mymesh._userDefinedElem[nelem]);
 
 			if( ElemHaveNeighborInBlock(elem->neighbor(nside), _block_ids) )
