@@ -320,6 +320,14 @@ void ComputeTemperatureBar::initialSetup()
 
 	_communicator.barrier();
 
+	for (int ii=0;ii<_all_element.size();ii++)
+	{
+		cout << "当前单元中心点：" << _all_element[ii]._elem->centroid() << endl;;
+		for (int i=0;i<_all_element.size();i++)
+		{
+			cout << _all_element[ii]._elem->centroid() << "  RD:  " << _all_element[ii].local_RD[i] << endl;
+		}
+	}
 
 //	computeRD();
 //	if(processor_id() == 0)

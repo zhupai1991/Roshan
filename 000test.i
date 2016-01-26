@@ -1,6 +1,8 @@
 [Mesh]
   dim = 2
-  file =  0test_in.e
+  #file = 07test.exo
+  #uniform_refine = 3
+  file = 0test_in.e
   uniform_refine = 0
   block_id = '1 2 3 4 5'
   block_name = 'left right bottom in top'
@@ -10,30 +12,31 @@
   [./scale]
     type = Transform
     transform = SCALE
+    #vector_value = '1 1 1'
     vector_value = '0.1 0.1 0.1'
   [../]
-    [./SideSets1]
+  [./SideSets1]
     type = SideSetsBetweenSubdomains
-    master_block = left
-    paired_block = in
+    master_block = in
+    paired_block = left
     new_boundary = in_left
   [../]
   [./SideSets2]
     type = SideSetsBetweenSubdomains
-    master_block = right
-    paired_block = in
+    master_block = in
+    paired_block = right
     new_boundary = in_right
   [../]
   [./SideSets3]
     type = SideSetsBetweenSubdomains
-    master_block = bottom
-    paired_block = in
+    master_block = in
+    paired_block = bottom
     new_boundary = in_bottom
   [../]
   [./SideSets4]
     type = SideSetsBetweenSubdomains
-    master_block = top
-    paired_block = in
+    master_block = in
+    paired_block = top
     new_boundary = in_top
   [../]
 []
@@ -108,9 +111,7 @@
     variable = temp
     boundary = 'in_left in_right in_bottom in_top'
   [../]
-
 []
-
 
 [UserObjects]
   [./montecarlo_userobject]
@@ -137,7 +138,7 @@
     roe_list = '400 400'
     k_list =  '5 5'
     cp_list = '100 100'
-    sigma = 1
+    epsilon = 1.0
   [../]
 
   [./material_monte]
