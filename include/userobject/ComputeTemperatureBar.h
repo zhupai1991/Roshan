@@ -8,6 +8,7 @@
 #include <set>
 using std::vector;
 using std::set;
+using std::string;
 
 namespace Roshan
 {
@@ -39,7 +40,7 @@ protected :
 
 	virtual void computeRadiationFlux();
 //	void computeRD();
-	void newcomputeRD(int pppppp);
+	void newcomputeRD(int local_particle_count);
 //	void ompComputeRD();
 //	void mpiComputeRD();
 //	void printfunction();
@@ -54,6 +55,9 @@ protected :
 	vector<Real> _absorptivity;
 	vector<Real> _diffuse_reflectivity;
 	vector<Real> _mirrors_reflectivity;
+	string _filename;
+	bool _write;
+	bool _read;
 
 	set<SubdomainID> _block_ids;
 	bool ElemHaveNeighborInBlock(Elem * elem, set<SubdomainID> block_ids);
