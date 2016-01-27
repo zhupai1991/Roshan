@@ -126,9 +126,10 @@
     diffuse_reflectivity='0.5'
     mirrors_reflectivity='0.5'
     temperature = temp
-    filename = 0000RD.dat
-    write = false
-    read = true
+    filename = 00000RD.dat
+    RD_mpi_or_omp = true
+    n_threads = 2
+    write_or_read = true
   [../]
 []
 

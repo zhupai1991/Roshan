@@ -41,7 +41,7 @@ protected :
 	virtual void computeRadiationFlux();
 //	void computeRD();
 	void newcomputeRD(int local_particle_count);
-//	void ompComputeRD();
+	void ompComputeRD(int n_threads);
 //	void mpiComputeRD();
 //	void printfunction();
 //	void pthreadsComputeRD();
@@ -56,8 +56,9 @@ protected :
 	vector<Real> _diffuse_reflectivity;
 	vector<Real> _mirrors_reflectivity;
 	string _filename;
-	bool _write;
-	bool _read;
+	bool _RD_mpi_or_omp;
+	int _n_threads;
+	bool _write_or_read;
 
 	set<SubdomainID> _block_ids;
 	bool ElemHaveNeighborInBlock(Elem * elem, set<SubdomainID> block_ids);
