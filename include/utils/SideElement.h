@@ -16,7 +16,7 @@ public:
 	~SideElement(){/*delete _elem;*/};
 public:
 	RayLine sendRay();
-	RayLine diffuseReflectRay(RayLine * rayline, Point point);
+	RayLine diffuseReflectRay(Point point);
 	RayLine mirrorsReflectRay(RayLine * rayline, Point point);
 	Point getSideElementNormal() {return _normal;};
 	Real _transmissivity;

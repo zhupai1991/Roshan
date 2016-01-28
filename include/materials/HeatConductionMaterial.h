@@ -19,7 +19,7 @@ private:
   void check();
 
   std::string _property_file;
-  int  _tpoint;
+  unsigned int  _tpoint;
   Real _epsilon;
   VariableValue & _temperature;
   MaterialProperty<Real> & _k;

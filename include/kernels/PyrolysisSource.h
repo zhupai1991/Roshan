@@ -16,7 +16,7 @@ private:
     Real _deltaH;
     VariableValue & _rho_dt;
     VariableValue & _rhoDot_dRho;
-    int _rho_num;
+    unsigned int _rho_num;
 };
 
 template<>

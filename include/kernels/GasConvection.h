@@ -19,7 +19,7 @@ private:
     Real _viscosity;
     Real _poro;
     VariableGradient & _pressure_gradient;
-    int _pressure_gradient_num;
+    unsigned int _pressure_gradient_num;
 };
 
 template<>

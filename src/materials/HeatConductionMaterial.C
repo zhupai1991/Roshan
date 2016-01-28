@@ -67,7 +67,7 @@ void HeatConductionMaterial::readFile()
             }
 			_tpoint = num[0];
 			_epsilon = num[1];
-			for(int i = 0; i < _tpoint; ++i)
+			for(unsigned int i = 0; i < _tpoint; ++i)
 			{
 				int j=0;
 				vector<Real> data;

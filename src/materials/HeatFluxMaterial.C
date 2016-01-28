@@ -138,13 +138,13 @@ void HeatFluxMaterial::interpolate(std::vector<Real> &qc, std::vector<Real>  &ts
 	_idis[upper]->interpolate_field_data(_field_name, pts, tgt_val_upper);
 
 	vector<Real> tgt_val_current;
-	for(int i  = 0; i < tgt_val_lower.size(); ++i)
+	for(unsigned int i  = 0; i < tgt_val_lower.size(); ++i)
 	{
 		tgt_val_current.push_back(lam*tgt_val_lower[i] + (1-lam)*tgt_val_upper[i]);
 	}
 
 	int num_val = _field_name.size();
-	for(int ip = 0; ip < pts.size(); ++ip)
+	for(unsigned int ip = 0; ip < pts.size(); ++ip)
 	{
 		qc.push_back(tgt_val_current[num_val*ip]);
 		ts.push_back(tgt_val_current[num_val*ip+1]);
@@ -156,7 +156,7 @@ void HeatFluxMaterial::computeProperties()
 {
 	std::vector<Real> qc, ts;
 	std::vector<Point> pts;
-	for(int ip = 0; ip < _q_point.size(); ++ip)
+	for(unsigned int ip = 0; ip < _q_point.size(); ++ip)
 	{
 		pts.push_back(_q_point[ip]);
 	}

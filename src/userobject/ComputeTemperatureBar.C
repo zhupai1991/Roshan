@@ -72,7 +72,7 @@ ComputeTemperatureBar::ComputeTemperatureBar(const InputParameters & parameters)
 
 ComputeTemperatureBar::~ComputeTemperatureBar()
 {
-	for(int i=0; i<_all_element.size(); i++)
+	for(unsigned int i=0; i<_all_element.size(); i++)
 	{
 //		if(_all_element[i])
 		delete _all_element[i]._elem;
@@ -131,13 +131,13 @@ ComputeTemperatureBar::~ComputeTemperatureBar()
 void ComputeTemperatureBar::initialSetup()
 {
 	string boundary_groups = getParam<string>("boundary_groups");
-	std::cout <<boundary_groups << std::endl;
+	std::cout << "boundary_groups: " << boundary_groups << std::endl;
 
 	vector<BoundaryName> group;
 	vector< vector<BoundaryName> > group_set;
 	MooseUtils::tokenize<BoundaryName>(boundary_groups, group, 1, ",");
 	group_set.resize(group.size());
-	for(int i = 0; i < group.size(); ++i)
+	for(unsigned int i = 0; i < group.size(); ++i)
 	{
 //		vector<BoundaryName> group_set;
 		MooseUtils::tokenize<BoundaryName>(group[i], group_set[i], 1, " ");
@@ -148,14 +148,16 @@ void ComputeTemperatureBar::initialSetup()
 //		cout << group[i] << endl;
 	}
 
-	for(int i = 0; i < group.size(); ++i)
+	for(unsigned int i = 0; i < group.size(); ++i)
 	{
-		cout << group[i] << endl;
-		for(int j = 0; j < group_set[i].size(); ++j)
+		cout << endl << "group[" << i << "]: " << group[i] << endl;
+		for(unsigned int j = 0; j < group_set[i].size(); ++j)
 		{
 			cout << group_set[i][j] << endl;
 		}
 	}
+
+	cout << endl << "Mesh modifying..." << endl;
 
 	vector<BoundaryName> boundary = getParam<std::vector<BoundaryName> >("boundary");
 	std::set<BoundaryID> boundary_ids;
@@ -243,9 +245,9 @@ void ComputeTemperatureBar::initialSetup()
 				int bnd_id = bnd_info.boundary_id(elem, nside);
 
 				int bnd_in_which_group =-1;
-				for(int i = 0; i < group.size(); ++i)
+				for(unsigned int i = 0; i < group.size(); ++i)
 				{
-					for(int j = 0; j < group_set[i].size(); ++j)
+					for(unsigned int j = 0; j < group_set[i].size(); ++j)
 					{
 						if(_mesh.getBoundaryID(group_set[i][j]) == bnd_id)
 						{
@@ -271,7 +273,7 @@ void ComputeTemperatureBar::initialSetup()
 				SideElement newsideelement(elem_side, -normals[0], _transmissivity[bnd_in_which_group], _absorptivity[bnd_in_which_group], _diffuse_reflectivity[bnd_in_which_group], _mirrors_reflectivity[bnd_in_which_group]);
 				_all_element.push_back(newsideelement);
 //				_all_element[count_sideelement]=newsideelement;
-				cout << "count_sideelement" << count_sideelement << endl;
+//				cout << "count_sideelement" << count_sideelement << endl;
 				_all_element[count_sideelement]._belong_to_which_elem = myelem;
 				_all_element[count_sideelement]._is_which_sideelem = nside;
 				myelem->_haveWhichSideElement[nside] = count_sideelement;
@@ -284,7 +286,10 @@ void ComputeTemperatureBar::initialSetup()
 			}
 		}
 	}
-	cout << endl << "size" << _all_element.size() << endl << endl;
+
+	cout << "Mesh modify completed" << endl;
+
+	cout << endl << "Count of boundary element: " << _all_element.size() << endl << endl;
 
 	temperature_pow4_bar.resize(_all_element.size(), 0);
 	temperature_pow3_bar.resize(_all_element.size(), 0);
@@ -295,7 +300,7 @@ void ComputeTemperatureBar::initialSetup()
 	{
 		_communicator.barrier();
 
-		for (int ii=0;ii<_all_element.size();ii++)
+		for (unsigned int ii=0;ii<_all_element.size();ii++)
 		{
 			_all_element[ii].local_RD.resize(_all_element.size(), 0);
 		}
@@ -316,28 +321,43 @@ void ComputeTemperatureBar::initialSetup()
 
 			newcomputeRD(local_p);
 
-			for(int i  = 0; i < _all_element.size(); i++)
+			_communicator.barrier();
+
+			cout << endl;
+			cout << "All_reducing......" << endl;
+
+			for(unsigned int i  = 0; i < _all_element.size(); i++)
 			{
 				_communicator.sum<Real>(_all_element[i].local_RD);
 			}
 
+			cout << "All_reduce completed" << endl << endl;
+
+			cout << endl;
+			cout << "Normalizing......" << endl;
+
 			_communicator.barrier();
 
-			for (int ii=0;ii<_all_element.size();ii++)
+			for (unsigned int ii=0;ii<_all_element.size();ii++)
 			{
-				for (int i=0;i<_all_element.size();i++)
+				for (unsigned int i=0;i<_all_element.size();i++)
 				{
 					_all_element[ii].local_RD[i] /= _particle_count;
 				}
 			}
 
 			_communicator.barrier();
+
+			cout << "Normalization completed" << endl;
 		}
 
 		else
 		{
 			ompComputeRD(_n_threads);
 		}
+
+		cout << endl;
+		cout << "Writing......" << endl;
 
 		ofstream rd_write;
 		rd_write.open(_filename.c_str(),ios::trunc);
@@ -346,25 +366,30 @@ void ComputeTemperatureBar::initialSetup()
 
 		rd_write << _all_element.size() << " " << _all_element.size() << endl;
 
-		for (int ii=0;ii<_all_element.size();ii++)
+		for (unsigned int ii=0;ii<_all_element.size();ii++)
 		{
-			cout << "当前单元中心点：" << _all_element[ii]._elem->centroid() << endl;;
-			for (int i=0;i<_all_element.size();i++)
+//			cout << "当前单元中心点：" << _all_element[ii]._elem->centroid() << endl;;
+			for (unsigned int i=0;i<_all_element.size();i++)
 			{
-				cout << _all_element[ii]._elem->centroid() << "  RD:  " << _all_element[ii].local_RD[i] << endl;
+//				cout << _all_element[ii]._elem->centroid() << "  RD:  " << _all_element[ii].local_RD[i] << endl;
 				rd_write << _all_element[ii].local_RD[i] << " " ;
 			}
 			rd_write << endl;
 		}
 
 		rd_write.close();
+
+		cout << "Write completed" << endl;
 	}
 
 	else
 	{
+		cout << endl;
+		cout << "Reading......" << endl;
+
 		_communicator.barrier();
 
-		for (int ii=0;ii<_all_element.size();ii++)
+		for (unsigned int ii=0;ii<_all_element.size();ii++)
 		{
 			_all_element[ii].local_RD.resize(_all_element.size(), 0);
 		}
@@ -381,13 +406,13 @@ void ComputeTemperatureBar::initialSetup()
 		while(iss >> f)
 			head.push_back(f);
 
-		int _num_i_of_RDij = head[0];
-		int _num_j_of_RDij = head[1];
+		unsigned int _num_i_of_RDij = head[0];
+		unsigned int _num_j_of_RDij = head[1];
 
 		if ( (_num_i_of_RDij!=_all_element.size()) || (_num_j_of_RDij!=_all_element.size()) )
 			mooseError("Error file '" + _filename + "' connot march.");
 
-		for (int i = 0; i < _all_element.size(); i++)
+		for (unsigned int i = 0; i < _all_element.size(); i++)
 		{
 			getline(rd_read, line);
 			int j=0;
@@ -402,20 +427,23 @@ void ComputeTemperatureBar::initialSetup()
 
 		_communicator.barrier();
 
-		for(int i  = 0; i < _all_element.size(); i++)
+		for(unsigned int i  = 0; i < _all_element.size(); i++)
 		{
 //			_communicator.sum<Real>(_all_element[i].local_RD);
 			_communicator.broadcast<Real>(_all_element[0].local_RD);
 		}
 		_communicator.barrier();
+
+		cout << "Read completed" << endl;
 	}
 
-	cout << endl;
-
-//	for (int ii=0;ii<_all_element.size();ii++)
+//	cout << endl;
+//	cout << "/////////////////////Result of RD//////////////////////" << endl;
+//
+//	for (unsigned int ii=0;ii<_all_element.size();ii++)
 //	{
-//		cout << "当前单元中心点：" << _all_element[ii]._elem->centroid() << endl;;
-//		for (int i=0;i<_all_element.size();i++)
+//		cout << endl << "当前单元中心点：" << _all_element[ii]._elem->centroid() << endl;;
+//		for (unsigned int i=0;i<_all_element.size();i++)
 //		{
 //			cout << _all_element[ii]._elem->centroid() << "  RD:  " << _all_element[ii].local_RD[i] << endl;
 //		}
@@ -485,7 +513,7 @@ void ComputeTemperatureBar::execute()
 	Real temp_pow4_bar(0);
 	Real temp_pow3_bar(0);
 
-	for(int _qp = 0; _qp < _q_point.size(); ++_qp)
+	for(unsigned int _qp = 0; _qp < _q_point.size(); ++_qp)
 	{
 		temp_pow4_bar += (_JxW[_qp]*pow(_temperature[_qp],4) );
 		temp_pow3_bar += (_JxW[_qp]*pow(_temperature[_qp],3) );
@@ -544,8 +572,10 @@ void ComputeTemperatureBar::finalize()
 void ComputeTemperatureBar::newcomputeRD(int local_particle_count)
 {
 //	MooseRandom::seed( pow(2,24)*processor_id() );
-	for(int ii  = 0; ii < _all_element.size(); ii++)
+	for(unsigned int ii  = 0; ii < _all_element.size(); ii++)
 	{
+		cout << "Computing " << ii << " of " << _all_element.size() << endl;
+
 		SideElement * cse = &(_all_element[ii]);
 
 		for (int j=0;j<local_particle_count;j++)
@@ -560,6 +590,7 @@ void ComputeTemperatureBar::newcomputeRD(int local_particle_count)
 			else
 				_all_element[ii].local_RD[j_of_RDij]=_all_element[ii].local_RD[j_of_RDij]+1.0;
 		}
+
 	}
 }
 
@@ -567,9 +598,10 @@ void ComputeTemperatureBar::ompComputeRD(int n_threads)
 {
 #pragma omp parallel for num_threads(n_threads) \
 	schedule(static,1)
-	for(int ii  = 0; ii < _all_element.size(); ii++)
+	for(unsigned int ii  = 0; ii < _all_element.size(); ii++)
 	{
-		for (int i=0;i<_all_element.size();i++)
+
+		for (unsigned int i=0;i<_all_element.size();i++)
 		{
 			_all_element[ii].local_RD[i]=0;
 		}
@@ -588,20 +620,19 @@ void ComputeTemperatureBar::ompComputeRD(int n_threads)
 			else
 				_all_element[ii].local_RD[j_of_RDij]=_all_element[ii].local_RD[j_of_RDij]+1.0;
 		}
-
-		cout << "Computing " << ii << " of " << _all_element.size() << endl;
+		cout << "Computing " << ii << " of [" << _all_element.size() << "], " << 100.0*ii/_all_element.size() << "% completed" << endl;
 	}
 
 	cout << endl;
-	cout << "Normallizing......" << endl;
-	for(int ii  = 0; ii < _all_element.size(); ii++)
+	cout << "Normalizing......" << endl;
+	for(unsigned int ii  = 0; ii < _all_element.size(); ii++)
 	{
-		for (int i=0;i<_all_element.size();i++)
+		for (unsigned int i=0;i<_all_element.size();i++)
 		{
 			_all_element[ii].local_RD[i]=_all_element[ii].local_RD[i]/_particle_count;
 		}
 	}
-	cout << "Normallization completed" << endl;
+	cout << "Normalization completed" << endl;
 }
 
 //void ComputeTemperatureBar::mpiComputeRD()
@@ -852,15 +883,15 @@ void ComputeTemperatureBar::computeRadiationFlux()
 		_communicator.sum<Real>(temperature_pow3_bar);
 	}
 
-	for (int i=0;i<_all_element.size();i++)
-	{
-		cout << "temperature_pow4_bar:  " << temperature_pow4_bar[i] << endl;
-	}
+//	for (unsigned int i=0;i<_all_element.size();i++)
+//	{
+//		cout << "temperature_pow4_bar:  " << temperature_pow4_bar[i] << endl;
+//	}
 
-	for (int i=0;i<_all_element.size();i++)
+	for (unsigned int i=0;i<_all_element.size();i++)
 	{
 		Flux_Rad=0.0;
-		for (int j=0;j<_all_element.size();j++)
+		for (unsigned int j=0;j<_all_element.size();j++)
 		{
 			Flux_Rad += (_all_element[j].local_RD[i])*(_all_element[j]._elem->volume())*_all_element[i]._absorptivity*temperature_pow4_bar[j];
 		}
@@ -871,12 +902,12 @@ void ComputeTemperatureBar::computeRadiationFlux()
 //		cout << "side_element_centre:" << _all_element[i]->_elem->centroid() << i << "      Flux:" << flux_radiation[i]  << endl;
 	}
 
-	for (int i=0;i<_all_element.size();i++)
-	{
-		cout << "flux_radiation:  " << flux_radiation[i] << endl;
-	}
+//	for (unsigned int i=0;i<_all_element.size();i++)
+//	{
+//		cout << "flux_radiation:  " << flux_radiation[i] << endl;
+//	}
 
-	for (int i=0;i<_all_element.size();i++)
+	for (unsigned int i=0;i<_all_element.size();i++)
 	{
 		temperature_pow4_bar[i] = 0;
 		temperature_pow3_bar[i] = 0;
@@ -887,7 +918,7 @@ int ComputeTemperatureBar::Find_i(const Elem * elem) const
 {
 	int findi=-1;
 
-	for (int i=0;i<_all_element.size();i++)
+	for (unsigned int i=0;i<_all_element.size();i++)
 	{
 		if( (_all_element[i]._elem->centroid()-elem->centroid()).size()<TOLERANCE )
 		{
@@ -999,7 +1030,6 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 	RayLine rayline_in;
 	RayLine rayline_out;
 	RayLine* ray_in=&rayline_in;
-	RayLine* ray_out=&rayline_out;
 	Point p(0,0,0);
 
 	rayline_in=(*current_elem).sendRay();
@@ -1023,7 +1053,7 @@ int ComputeTemperatureBar::Find_j_of_RDij(SideElement * sideelement_i, vector<Si
 		else if(MooseRandom::rand()<=sideelement_vec[j]._diffuse_reflectivity)
 		{
 //			cout << "Diffuse_Reflectivity" << endl;
-			rayline_out=sideelement_vec[j].diffuseReflectRay(ray_in,p);
+			rayline_out=sideelement_vec[j].diffuseReflectRay(p);
 			current_elem=&(sideelement_vec[j]);
 			rayline_in=rayline_out;
 			j_of_RDij=j;

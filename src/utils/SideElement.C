@@ -106,7 +106,7 @@ RayLine SideElement::sendRay()
 	}
 }
 
-RayLine SideElement::diffuseReflectRay(RayLine* rayline, Point point)
+RayLine SideElement::diffuseReflectRay(Point point)
 {
 //	MooseRandom::seed(0);
 	Real theita = 2*pi*MooseRandom::rand();
